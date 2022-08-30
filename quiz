@@ -1,0 +1,258 @@
+SQL
+Q.1: Which SQL statement is used to return only different values?								
+								
+	A	SELECT DISTINCT						
+	B	SELECT DIFFERENT						
+	C	SELECT UNIQUE						
+
+
+Q.2: With SQL, how can you return all the records from a table named "Persons" sorted descending by "FirstName"?																			
+																			
+	A	SELECT * FROM Persons ORDER FirstName DESC																	
+	B	SELECT * FROM Persons SORT BY 'FirstName' DESC																	
+	C	SELECT * FROM Persons ORDER BY FirstName DESC																	
+	D	SELECT * FROM Persons SORT 'FirstName' DESC																	
+
+
+Q.3: How can you change "Hansen" into "Nilsen" in the "LastName" column in the Persons table?																
+																
+	A	MODIFY Persons SET LastName='Hansen' INTO LastName='Nilsen														
+	B	MODIFY Persons SET LastName='Nilsen' WHERE LastName='Hansen'														
+	C	UPDATE Persons SET LastName='Nilsen' WHERE LastName='Hansen'														
+	D	UPDATE Persons SET LastName='Hansen' INTO LastName='Nilsen'														
+
+
+Q.4: With SQL, how can you delete the records where the "FirstName" is "Peter" in the Persons Table?																
+																
+	A	DELETE ROW FirstName='Peter' FROM Persons														
+	B	DELETE FROM Persons WHERE FirstName = 'Peter'														
+	C	DELETE FirstName='Peter' FROM Persons														
+
+
+Q.5:																					
+	HONOURS_SUBJECT(subject_code, subject_name, department_head);																				
+																					
+	LOCATIONS(subject_code, department_name, location_id, city);																				
+																					
+	Select the right query for retrieving records from the tables HONOURS_SUBJECT and LOCATIONS with a left outer join																				
+																					
+	A	Select h.subject_name, l.department_name, h.department_head, l.city from honours_subject h left outer join location l on(h.subject_code = l.subject_code);																			
+	B	Select h.subject_name, l.department_name, h.department_head, l.city from honours_subject h left outer join location l on(subject_code);																			
+	C	Select h.subject_name, l.department_name, h.department_head, l.city from honours_subject h left join location l on(h.subject_code = l.subject_code);																			
+	D	None of the above.																			
+
+
+Q.6: Consider the following schema																					
+																					
+	STUDENTS(student_code, first_name, last_name, email,  phone_no, date_of_birth, honours_subject, percentage_of_marks);																				
+																					
+	Which of the following query will correctly display name of all the students who got more marks than the student ‘TT-94000’?																				
+																					
+	A	select first_name, last_name from students 																			
+																					
+		where percent_of_marks > 																			
+		        (select percentage_of_marks from students																			
+		                where student_code = ‘0215/15’);																			
+																					
+	B	select first_name, last_name from students 																			
+		having percent_of_marks > 																			
+		        (select percentage_of_marks from students																			
+		                where student_code = ‘0215/15’);																			
+																					
+	C	select first_name, last_name from students 																			
+		using percent_of_marks > 																			
+		        (select select percentage_of_marks from students																			
+		                where student_code = ‘0215/15’);																			
+																					
+	D	None of the above.																			
+
+
+Q.7: Consider the following schema																					
+																					
+	LOCATIONS(subject_code, department_name, location_id, city);																				
+																					
+	Which code snippet will alter the table LOCATIONS and add a column named Address, with datatype VARCHAR2(100)?																				
+																					
+	A	ALTER TABLE locations ADD (address varchar2(100));																			
+																					
+	B	ALTER TABLE locations ADD COLUMN(address varchar2(100));																			
+																					
+	C	MODIFY TABLE locations ADD COLUMN (address varchar2(100));																			
+																					
+	D	None of the above. 																			
+
+
+Q.8 - Q.10 : What’s wrong in the following query? 															
+Q.8:															
+															
+		SELECT													
+			ID												
+		,	COUNT(NAME)												
+		FROM 													
+			STUDENTS												
+Q.9:															
+															
+		SELECT													
+			ID												
+		,	AVG(MARKS)												
+		FROM													
+			STUDENTS												
+		WHERE 													
+			AVG(MARKS) > 75												
+		GROUP BY 													
+			ID												
+															
+Q.10:															
+															
+		SELECT													
+			ID												
+		,	NAME												
+		FROM 													
+			STUDENTS												
+		WHERE 													
+			MARKS  = (												
+					SELECT										
+						MAX(MARKS)									
+					FROM										
+						STUDENTS									
+					GROUP BY 										
+						ID									
+					)										
+															
+
+
+
+OOP
+1	Hãy xem xét đoạn mã sau:									
+										
+	class A{									
+			protected: int a, b;							
+			public: float F1, F2;							
+		}								
+	class B: public A{									
+		…								
+		}								
+	B sử dụng được các biến thành viên nào của A									
+										
+	A	a, b, F1, F2								
+	B	F1, F2								
+	C	a, b								
+	D	Không sử dụng Được biến thành viên nào								
+
+
+2	Lập trình hướng đối tượng là như thế nào																			
+																				
+	A	Lập trình hướng đối tượng là nhóm dữ liệu và các hàm thao tác trên dữ liệu  đó vào tròng đối tượng chương trình																		
+	B	Lập trình hướng đối tượng là đóng gói biến và các hàm thao tác trên biến đó vào một đối tượng chương trình																		
+	C	Lập trình hướng đối tượng là tìm cách tổ chức chương trình thành các đối tượng và cho các đối tượng tương tác với nhau																		
+	D	Lập trình hướng đối tượng là mô phỏng các đối tượng trong thế giới thực																		
+
+
+3	Sự kế thừa trong lập trình hướng đối tượng được thể hiện như thế nào																			
+																				
+	A	Sự kế thừa trong lập trình hướng đối tượng được thể hiện ở việc một đối tượng kế thừa những đặc điểm của đối tượng khác																		
+	B	Sự kế thừa trong lập trình hướng đối tượng ở việc sử dụng các thư viện hàm có sẵn																		
+	C	Sự kế thừa trong lập trình hướng đối tượng được thể hiện sử dụng các thư viện lớp có sẵn																		
+	D	Sự kế thừa trong lập trình hướng đối tượng được thể hiện ở việc một lớp kế thừa những đặc điểm của lớp khác																		
+
+4	Đâu là phát biểu không đúng về hàm tạo hàm hủy?																				
+																					
+	A	Hàm hủy  là hàm thành viên được tự động thực hiện khi đối tượng bị hủy nó có nhiệm vụ giải phóng các tài nguyên được sử dụng bởi đối tượng																			
+	B	Hàm tạo là hàm thành viên được tự động thực hiện khi tạo đối tượng , nó có nhiệm vụ tạo đối tượng, khởi tạo giá trị ban đầu cho các biến của đối tượng, 																			
+		cấp phát bộ nhớ động cho đối tượng.																			
+	C	Hàm tạo và hàm hủy không phải là hàm thành viên của lớp nó là các hàm có sẵn dung để tạo và hủy đối tượng																			
+	D	Hàm tạo hàm hủy là hàm thành viên đặc biệt của lớp.Đây là hai hàm không cần khai báo cũng có, chúng có tên hàm trùng với tên lớp (tên hàm hủy có kí tự ~ đứng trước)																			
+
+5	Chồng hàm là gì?									
+										
+	A	Chồng hàm cho các hàm có tên khác nhau và đối số khác nhau								
+	B	Cho các hàm có tên giống nhau nhưng đối số khác nhau								
+	C	Cho các hàm có tên giống nhau và đối số giống nhau								
+	D	Cho tên các hàm có tên khác nhau và đối số giống nhau								
+
+
+
+6	Một biến sau khi Được khai báo, cấp vùng nhớ, nhưng chưa Đặt giá trị ban Đầu thì bản thân nó sẽ có giá trị là																			
+																				
+	A	Khoảng trắng																		
+	B	0																		
+	C	Giá trị rác (không biết trước)																		
+	D	Giá trị rỗng																		
+
+
+
+7	"  
+
+Which of the following type of class allows only one object of it to be created?"													
+														
+	A	Virtual class												
+	B	Abstract class												
+	C	Singleton class												
+	D	Friend class												
+
+
+
+8	"  
+
+How many instances of an abstract class can be created?"								
+									
+	A	1							
+	B	5							
+	C	13							
+	D	0							
+
+
+9	Which of the following concepts of OOPS means exposing only necessary information to client?																
+																	
+	A	Encapsulation															
+	B	Abstraction															
+	C	Data hiding															
+	D	Data binding															
+
+
+10	Which of the following is an abstract data type?																
+																	
+	A	int															
+	B	double															
+	C	string															
+	D	Class															
+
+
+
+
+Pseudocode
+
+Tại hệ thống quản lý công trình, khi input code công trình vào hệ thống, hệ thống phải kiểm tra tính hợp lệ của công trình đó.																					
+Nếu input rỗng hoặc  thông tin công trình chưa tồn tại  thì hiển thị message thông báo rồi kết thúc xử lý,																					
+quay về xử lý trước khi input và focus vào code công trình, trường hợp tồn tại thì tiến hành xử lý tiếp theo																					
+Nếu input code công trình lớn hơn 10 kí tự cũng xem như là không hợp lệ và tiến hành xử lý giốn như trường hợp input rỗng																					
+Trong hệ thống, mỗi user đều có phòng ban trực thuộc, nếu phòng ban trực thuộc này không có quyền thì user cũng không thể input chỉnh sửa công trình																					
+Trong trường hợp nếu như phòng ban trực thuộc của user có quyền thì phải cấp quyền cho user thì mới có thể tiến hành input chỉnh sửa công trình đã input																					
+Công trình input phải là công trình chưa hoàn thành, nếu công trình đã hoàn thành thì xem như không hợp lệ.																					
+Trong quá trình hoạt động, người quản lý của user có thể cấp quyền hoặc không cấp quyền tùy thuộc vào mục đích quản lý, nếu người quản lý không cấp quyền thì 																					
+user không thể access được vào hệ thống.																					
+																					
+Từ yêu cầu trên, hãy viết 1 đoạn mã giả(không phải code) trình bày lại nội dung trên																					
+
+
+
+
+
+
+
+Research 
+	Đã là lập trình, đôi lúc bản thân mỗi coder đều phải gặp những vấn đề về kỹ thuật hay nghiệp vụ khó.																	
+	Và lại phải sắp giao Program cho khách hàng.																	
+	Trong trường hợp này thì phải nên làm gì? Hỏi leader hay research hướng giải quyết?																	
+	Và vào một ngày đẹp trời, sáng bước vào phòng làm việc đầy phấn khởi, bạn mở file schedule lên và chợt nhận ra.																	
+			"ÔI!!!, LẠI TRỄ RỒI AH?"															
+	Bạn sẽ giải quyết việc trễ tiến độ đó như thế nào?																	
+																		
+																		
+	Cách giải quyết:																	
+
+
+
+
+
+
