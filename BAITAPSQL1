@@ -1,0 +1,178 @@
+M_KOJ Lưu trữ thông tin công trình
+CODE: Code công trình   nvarchar   x
+NAME: Tên công trình    nvarchar
+BMN_UW: Phòng ban thi công   nvarchar
+KEIY_DATE: ngày hợp đồng     date
+KEIY_KIN: tiền hợp đồng      numeric(15,0)
+
+
+F_JIK Lưu trứ thông tin dự toán của công trình(header)
+KOJ: code công trình             nvarchar   x
+NENGETU: tháng năm tạo dự toán   date       x
+  
+
+F_JIK_UW lưu trữ thông tin dự toán của công trình(detail)
+KOJ:code công trình   nvarchar                                                           x
+NENGETU				tháng năm tạo dự toán	date				x			
+GNO				No dòng chi tiết (đánh số tăng dần từ 1)	   int	         x							
+KSY_SYO				loại công việc					int	  		
+YOUSO				chi phí						int			
+SURYO				số lượng						int		
+TANI				đơn vị						nvarchar										
+TANKA				đơn giá						numeric(15,0)
+JIK_KIN				số tiền dự toán		                        numeric(15,0)				
+
+
+M_BMN_UW lưu trữ thông tin phòng ban
+CODE: code phòng ban    nvarchar   x
+NAME: Tên phòng ban     nvarchar
+
+
+M_KSY_SYO Lưu trữ thông tin loại công việc
+CODE: codeloại công việc      int   x
+NAME: tên loại công việc      nvarchar
+
+
+
+Chuẩn bị môi trường
+	・Thông tin môi trường làm bài tập SQL																								
+		Server:																							
+		172.16.6.196																							
+		User: sa																							
+		Password: Abc12345																							
+																									
+		Database:																							
+		BAITAP_SQL																							
+																									
+	・Schema																								
+		Mỗi member hãy tự tạo cho mình 1 schema riêng																							
+		Hãy đặt tên schema theo tên của member																							
+																									
+		Ví dụ:																							
+		Tên member là NHAT-NM thì tạo schema tên là NHAT_NM																							
+																									
+	・Data dùng làm bài tập SQL																								
+		Đầu tiên, vào thư mục Tables, build tất cả các file script tạo cấu trúc table đang có trong thư mục đó.																							
+		Lưu ý: 																							
+		Tên table đang có chữ AAA_BB, hãy replace thành tên member																							
+		Ví dụ:																							
+		Tên member là NHAT-NM thì tạo table tên là F_JIK_NHAT_NM																							
+																									
+		Mục đích là để mỗi member sẽ làm trên table riêng biệt của mình, nếu có thay đổi data sẽ không làm ảnh hưởng đến member khác.																							
+																									
+		Tiếp theo, vào thư mục InitializeData, build file script DataSample (trong thư mục bài tập tương ứng) để tạo data																							
+		Làm đến bài tập nào, thì build file script data tương ứng với bài tập đó																							
+		Đừng build hết toàn bộ data của tất cả các bài tập, vì trong file script có lệnh delete data trước khi insert																							
+		Lưu ý: 																							
+		Tên table đang có chữ AAA_BB, hãy replace thành tên member																							
+		Ví dụ:																							
+		Tên member là NHAT-NM thì tên table là F_JIK_NHAT_NM																							
+																									
+	・File script nộp lại cho người hướng dẫn																								
+		Hãy tạo file script lưu trữ stored (1 file script là 1 stored)																							
+		Tên file thì sử dụng tên stored để đặt, ngoài ra thì để không bị nhầm lẫn hãy add thêm tên member vào phía sau																							
+																									
+		Ví dụ:																							
+		Tên member là NHAT-NM, tên stored là GetJikKin																							
+		Như vậy tên file sẽ đặt như bên dưới:																							
+		GetJikKin_NHAT_NM.sql	
+
+
+
+
+BAI TAP 1
+	Yêu cầu:																										
+		Hãy tạo stored tính tổng số tiền dự toán của các công trình thỏa cả 2 điều kiện bên dưới:																									
+		+ Công trình có ngày hợp đồng trong phạm vi từ ngày 2020/2/5 đến 2020/11/20																									
+		+ Công trình có phòng ban thi công trong phạm vi từ A100 đến A200																									
+		Ngoài ra thì khi output hãy sort theo code công trình tăng dần.																									
+																											
+		Thông tin stored cần tạo																									
+			Tên stored:																								
+				<tên schema>.GetJikKin																							
+				※<tên schema> thì hãy replace thành tên schema của member																							
+			Parameter:																								
+				・N_KOJ_CHK  [INT]																							
+					Nếu là 0 ➝ trích xuất công trình mà không cần quan tâm đến điều kiện ngày hợp đồng																						
+					Nếu là 1 ➝ trích xuất công trình có ngày hợp đồng trong phạm vi start, end tương ứng																						
+				・D_KEIY_DATE_START  [DATE]																							
+					Ngày hợp đồng start																						
+				・D_KEIY_DATE_END  [DATE]																							
+					Ngày hợp đồng end																						
+				・N_BMN_UW_CHK  [INT]																							
+					Nếu là 0 ➝ trích xuất công trình mà không cần quan tâm đến điều kiện phòng ban thi công																						
+					Nếu là 1 ➝ trích xuất công trình có phòng ban thi công trong phạm vi start, end tương ứng																						
+				・C_BMN_UW_START  [NVARCHAR(10)]																							
+					Phòng ban thi công start																						
+				・C_BMN_UW_END  [NVARCHAR(10)]																							
+					Phòng ban thi công end																						
+																											
+	Kỹ thuật SQL sử dụng:																										
+		Trong bài tập này hãy sử dụng các kỹ thuật bên dưới:																									
+			・Liên kết table (LEFT JOIN, INNER JOIN, ...)																								
+			・Tổng kết data (GROUP BY, MIN, MAX, SUM, ...)																								
+			・Get data phạm vi thì sử dụng BETWEEN … AND																								
+			・Về rẽ nhánh theo N_KOJ_CHK và N_BMN_UW_CHK thì hãy suy nghĩ theo hướng sử dụng AND/OR																								
+			・Không được sử dụng EXEC sp_executesql																								
+																											
+		Nếu muốn sử dụng các kỹ thuật SQL khác trên thì vui lòng confirm với người hướng dẫn																									
+																											
+	Data:																										
+		Sử dụng data tại sheet Data_BaiTap1.																									
+																											
+	Kết quả mong muốn:																										
+		Dựa vào nội dung điều kiện tại mục Yêu cầu, kết quả output mong muốn như bên dưới:																									
+																						
+
+
+Code công trình				Tên công trình					Code phòng ban				Tên phòng ban					Ngày hợp đồng				Tiền dự toán		
+A-002				Xây nhà dân dụng 2					A105				Phòng ban ở Q2					2020/2/5				8,740,000 		
+A-003				Xây nhà dân dụng 3					A200				Phòng ban ở Q3					2020/6/10				0 		
+
+
+	※Thực thi stored trong cả 2 trường hợp N_KOJ_CHK và N_BMN_UW_CHK là 0 và 1																			
+																				
+Hình thức báo cáo:																				
+	Hãy nộp lại cho người hướng dẫn file script lưu trữ stored.																			
+
+
+
+
+
+DATABASE BAI 1
+M_KOJ															
+CODE		NAME					BMN_UW			KEIY_DATE			KEIY_KIN		
+A-001		Xây nhà dân dụng 1					A100			2020/2/4			100,000,000 		
+A-002		Xây nhà dân dụng 2					A105			2020/2/5			105,000,000 		
+A-003		Xây nhà dân dụng 3					A200			2020/6/10			300,000,000 		
+A-004		Xây nhà dân dụng 4					A300			2020/7/25			200,000,000 		
+
+F_JIK				
+KOJ		NENGETU		
+A-001		2020/3/1		
+A-002		2020/3/1		
+A-004		2020/8/1		
+
+
+
+F_JIK_UW																							
+KOJ		NENGETU			GNO		KSY_SYO			YOUSO			SURYO			TANI		TANKA			JIK_KIN		
+A-001		2020/3/1			1		10			7			3			Cái		300,000 			900,000 		
+A-002		2020/3/1			1		10			8			30			Xe		120,000 			3,600,000 		
+A-002		2020/3/1			2		11			2			50			Người		100,000 			5,000,000 		
+A-002		2020/3/1			3		11			4			0			NULL		0 			NULL		
+A-002		2020/3/1			4		12			3			7			Cái		20,000 			140,000 		
+A-004		2020/8/1			1		10			7			2			Cái		200,000 			400,000 		
+
+
+
+M_BMN_UW							
+CODE			NAME				
+A100			Phòng ban ở Q1				
+A105			Phòng ban ở Q2				
+A200			Phòng ban ở Q3				
+A300			Phòng ban ở Q4				
+
+
+
+
