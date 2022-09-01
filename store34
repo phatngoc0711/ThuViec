@@ -1,0 +1,215 @@
+BAI3
+USE [BAITAP_SQL]
+GO
+
+/****** Object:  StoredProcedure [NHAN_NH].[UpdateKeiyKinByBmn]    Script Date: 2022/09/01 17:09:14 ******/
+SET ANSI_NULLS ON
+GO
+
+SET QUOTED_IDENTIFIER ON
+GO
+
+CREATE PROCEDURE [NHAN_NH].[UpdateKeiyKinByBmn] (
+    @N_KIN NUMERIC(15, 0)
+    , @N_CHANGE_TYPE INT
+    , @N_ROW_TYPE INT
+    )
+AS
+SET NOCOUNT ON
+
+BEGIN
+    DECLARE @CODE NVARCHAR(10)
+        , @No INT
+
+    DECLARE CurUPDATE CURSOR
+    FOR
+    SELECT CODE
+        , RANK() OVER (
+            PARTITION BY BMN_UW ORDER BY CODE
+            ) AS 'No.dòng'
+    FROM NHAN_NH.M_KOJ_NHAN_NH KOJ
+    ORDER BY CODE
+
+    OPEN CurUPDATE;
+
+    FETCH NEXT
+    FROM CurUPDATE
+    INTO @CODE
+        , @No
+
+    WHILE (@@FETCH_STATUS = 0)
+    BEGIN
+
+        UPDATE M_KOJ_NHAN_NH
+        SET KEIY_KIN = KEIY_KIN + @N_KIN
+        WHERE @N_CHANGE_TYPE = 1
+            AND (
+                (
+                    @N_ROW_TYPE = 1
+                    AND @No % 2 = 0
+                    AND @CODE = CODE
+                    )
+                OR (
+                    @N_ROW_TYPE = 2
+                    AND @No % 2 = 1
+                    AND @CODE = CODE
+                    )
+                )
+
+        UPDATE M_KOJ_NHAN_NH
+        SET KEIY_KIN = KEIY_KIN - @N_KIN
+        WHERE @N_CHANGE_TYPE = 2
+            AND (
+                (
+                    @N_ROW_TYPE = 1
+                    AND @No % 2 = 0
+					AND @CODE = CODE
+                    )
+                OR (
+                    @N_ROW_TYPE = 2
+                    AND @No % 2 = 1
+					AND @CODE = CODE
+                    )
+                )
+
+        FETCH NEXT
+        FROM CurUPDATE
+        INTO @CODE
+            , @No
+    END;
+
+    CLOSE CurUPDATE;
+
+    DEALLOCATE CurUPDATE;
+END;
+GO
+
+
+
+BAI 4
+USE [BAITAP_SQL]
+GO
+
+/****** Object:  StoredProcedure [NHAN_NH].[UpdateKeiyKinByBmnCheck]    Script Date: 2022/09/01 17:12:20 ******/
+SET ANSI_NULLS ON
+GO
+
+SET QUOTED_IDENTIFIER ON
+GO
+
+CREATE PROCEDURE [NHAN_NH].[UpdateKeiyKinByBmnCheck] (
+    @N_KIN NUMERIC(15, 0)
+    , @N_CHANGE_TYPE INT
+    , @N_ROW_TYPE INT
+    )
+AS
+SET NOCOUNT ON
+BEGIN
+    DECLARE @CODE NVARCHAR(10)
+        , @BMN_UW NVARCHAR(10)
+        , @No INT
+
+    DECLARE CurUPDATE CURSOR
+    FOR
+    SELECT CODE
+        , BMN_UW
+        , RANK() OVER (
+            PARTITION BY BMN_UW ORDER BY CODE
+            ) AS 'No.dòng'
+    FROM NHAN_NH.M_KOJ_NHAN_NH KOJ
+    ORDER BY CODE
+
+    OPEN CurUPDATE;
+
+    FETCH NEXT
+    FROM CurUPDATE
+    INTO @CODE
+        , @BMN_UW
+        , @No
+
+    BEGIN TRY
+        BEGIN TRAN TRAN_EXISTS
+
+        WHILE (@@FETCH_STATUS = 0)
+        BEGIN
+            IF (
+                    (
+                        SELECT NHAN_NH.IsBmnExits(@BMN_UW)
+                        ) = 0
+                    AND (
+                        (
+                            @N_ROW_TYPE = 1
+                            AND @No % 2 = 0
+                            )
+                        OR (
+                            @N_ROW_TYPE = 2
+                            AND @No % 2 = 1
+                            )
+                        )
+                    )
+            BEGIN
+                RAISERROR (
+                        'CODE không tồn tại!!!!'
+                        , 11
+                        , 1
+                        );
+            END
+            ELSE
+            BEGIN
+                UPDATE M_KOJ_NHAN_NH
+                SET KEIY_KIN = KEIY_KIN + @N_KIN
+                WHERE @N_CHANGE_TYPE = 1
+                    AND (
+                        (
+                            @N_ROW_TYPE = 1
+                            AND @No % 2 = 0
+                            AND @CODE = CODE
+                            )
+                        OR (
+                            @N_ROW_TYPE = 2
+                            AND @No % 2 = 1
+                            AND @CODE = CODE
+                            )
+                        )
+
+                UPDATE M_KOJ_NHAN_NH
+                SET KEIY_KIN = KEIY_KIN - @N_KIN
+                WHERE @N_CHANGE_TYPE = 2
+                    AND (
+                        (
+                            @N_ROW_TYPE = 1
+                            AND @No % 2 = 0
+                            AND @CODE = CODE
+                            )
+                        OR (
+                            @N_ROW_TYPE = 2
+                            AND @No % 2 = 1
+                            AND @CODE = CODE
+                            )
+                        )
+            END
+
+            FETCH NEXT
+            FROM CurUPDATE
+            INTO @CODE
+                , @BMN_UW
+                , @No
+        END;
+
+        COMMIT TRAN TRAN_EXISTS
+    END TRY
+
+    BEGIN CATCH
+        PRINT N'Code phòng ban '+@BMN_UW+N' của công trình '+@CODE+N' không tồn tại.'
+
+        ROLLBACK TRAN TRAN_EXISTS
+    END CATCH
+
+    CLOSE CurUPDATE;
+
+    DEALLOCATE CurUPDATE;
+END;
+GO
+
+
+
