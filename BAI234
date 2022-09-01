@@ -1,0 +1,401 @@
+BAI2
+
+Yêu cầu:																										
+	Hãy tạo stored tính tổng số tiền dự toán theo từng loại công việc của các công trình trong 6 tháng đầu năm																									
+	6 tháng đầu năm thì cố định là từ tháng 1 đến tháng 6.																									
+	Đối với loại công việc mà không có phát sinh số tiền dự toán trong 6 tháng đầu năm thì không output.																									
+	Khi output hãy sort theo code công trình tăng dần, code loại công việc tăng dần.																									
+																										
+	Thông tin stored cần tạo																									
+		Tên stored:																								
+			<tên schema>.GetJikKinByMonth																							
+			※<tên schema> thì hãy replace thành tên schema của member																							
+		Parameter:																								
+			・N_YEAR  [INT]																							
+				Năm đối tượng																						
+																										
+Kỹ thuật SQL sử dụng:																										
+	Trong bài tập này hãy sử dụng các kỹ thuật bên dưới:																									
+		・Liên kết table (LEFT JOIN, INNER JOIN, ...)																								
+		・Tổng kết data (GROUP BY, MIN, MAX, SUM, ...)																								
+		・Get data phạm vi thì sử dụng BETWEEN … AND																								
+		・Sử dụng CASE WHEN để tạo cột tháng 1 đến cột tháng 6																								
+		・Không được sử dụng EXEC sp_executesql																								
+																										
+	Nếu muốn sử dụng các kỹ thuật SQL khác trên thì vui lòng confirm với người hướng dẫn																									
+																										
+Data:																										
+	Sử dụng data tại sheet Data_BaiTap2.																									
+																										
+Kết quả mong muốn:																										
+	Giả sử năm đối tượng là năm 2020, kết quả mong muốn như bên dưới:																									
+
+
+Code công trình				Tên công trình					Code loại công việc				Tên loại công việc					Tháng 1			Tháng 2			Tháng 3			Tháng 4			Tháng 5			Tháng 6		
+A-001				Xây nhà dân dụng 1					10				Chuẩn bị xây					0 			0 			0 			900,000 			0 			0 		
+A-002				Xây nhà dân dụng 2					10				Chuẩn bị xây					0 			0 			3,600,000 			0 			0 			0 		
+A-002				Xây nhà dân dụng 2					11				Đào móng					0 			0 			5,120,000 			0 			0 			0 		
+A-002				Xây nhà dân dụng 2					12				Xây tường					0 			0 			140,000 			0 			0 			0 		
+A-002				Xây nhà dân dụng 2					13				Xây mái					0 			0 			0 			0 			75,000 			0 		
+A-004				Xây nhà dân dụng 4					10				Chuẩn bị xây					0 			0 			0 			0 			0 			970,000 	
+
+
+
+BAI３DATA
+
+Giả sử có data về hệ thống quản lý xây dựng (ở mức đơn giản) như bên dưới.																			
+Về tên table, tên field mà không rõ ý nghĩa thì hãy tham khảo sheet YNghiaItem.																			
+Các field màu đỏ là Primary Key.	
+
+
+M_KOJ															
+CODE		NAME					BMN_UW			KEIY_DATE			KEIY_KIN		
+A-001		Xây nhà dân dụng 1					A100			2020/2/4			100,000,000 		
+A-002		Xây nhà dân dụng 2					A300			2020/2/5			105,000,000 		
+A-003		Xây nhà dân dụng 3					A200			2020/6/10			300,000,000 		
+A-004		Xây nhà dân dụng 4					A300			2020/5/25			200,000,000 		
+A-005		Xây nhà dân dụng 5					A300			2021/3/25			200,000,000 		
+A-006		Xây nhà dân dụng 6					A200			2021/3/25			201,000,000 		
+
+
+
+※Trình tự thực hiện:																							
+	Bước 1: xác định phòng ban thuộc dòng chẵn lẻ																						
+			CODE		BMN_UW			No.dòng		← 	sử dụng PARTITION tạo cột No.dòng, sort theo cột CODE tăng dần												
+			A-001		A100			1			đánh số No.dòng theo đơn vị BMN_UW												
+			A-002		A300			1															
+			A-003		A200			1															
+			A-004		A300			2															
+			A-005		A300			3															
+			A-006		A200			2															
+
+
+																		
+	Bước 2: sử dụng cursor, loop từng dòng data (chẵn hoặc lẻ) tại bước 1, rồi update tiền hợp đồng vào M_KOJ																						
+
+
+
+BAI 3
+
+Yêu cầu:																									
+	Hãy tạo stored dùng để update tăng/giảm số tiền hợp đồng của các công trình có code phòng ban thuộc dòng chẵn/lẻ																								
+	Về đánh số dòng chẵn lẻ thì sẽ đánh số theo đơn vị phòng ban (M_KOJ.BMN_UW)																								
+																									
+		
+
+		Thông tin stored cần tạo																				
+			Tên stored:																			
+				<tên schema>.UpdateKeiyKinByBmn																		
+				※<tên schema> thì hãy replace thành tên schema của member																		
+			Parameter:																			
+				・N_KIN  [NUMERIC(15, 0)]																		
+					Số tiền tăng/giảm																	
+				・N_CHANGE_TYPE  [INT]																		
+					Nếu là 1 ➝ tăng số tiền hợp đồng																	
+					Nếu là 2 ➝ giảm số tiền hợp đồng																	
+				・N_ROW_TYPE  [INT]																		
+					Nếu là 1 ➝ update công trình có code phòng ban thuộc dòng chẵn																	
+					Nếu là 2 ➝ update công trình có code phòng ban thuộc dòng lẻ																	
+																						
+	Kỹ thuật SQL sử dụng:																					
+																						
+
+		Trong bài tập này hãy sử dụng các kỹ thuật bên dưới:																							
+			・Sử dụng cursor																						
+			・Sử dụng PARTITION																						
+																									
+		Nếu muốn sử dụng các kỹ thuật SQL khác trên thì vui lòng confirm với người hướng dẫn																							
+																									
+	Data:																								
+		Sử dụng data tại sheet Data_BaiTap3.																							
+																									
+	Kết quả mong muốn:																								
+																									
+		Giả sử, truyền param như sau:																							
+			N_KIN = 5,000																						
+			N_CHANGE_TYPE = 1 (tăng tiền hợp đồng)																						
+			N_ROW_TYPE = 1 (dòng chẵn)																						
+																									
+			Kết quả update mong muốn như sau:																						
+
+
+M_KOJ																								
+CODE		NAME					BMN_UW			KEIY_DATE			KEIY_KIN			No.dòng								
+A-001		Xây nhà dân dụng 1					A100			2020/2/4			100,000,000 			1		➝	Dòng lẻ, không update					
+A-002		Xây nhà dân dụng 2					A300			2020/2/5			105,000,000 			1		➝	Dòng lẻ, không update					
+A-003		Xây nhà dân dụng 3					A200			2020/6/10			300,000,000 			1		➝	Dòng lẻ, không update					
+A-004		Xây nhà dân dụng 4					A300			2020/5/25			200,005,000 			2		➝	Dòng chẵn, update tiền hợp đồng					
+A-005		Xây nhà dân dụng 5					A300			2021/3/25			200,000,000 			3		➝	Dòng lẻ, không update					
+A-006		Xây nhà dân dụng 6					A200			2021/3/25			201,005,000 			2		➝	Dòng chẵn, update tiền hợp đồng					
+
+
+
+		Giả sử, truyền param như sau:																							
+			N_KIN = 5,000																						
+			N_CHANGE_TYPE = 2 (giảm tiền hợp đồng)																						
+			N_ROW_TYPE = 2 (dòng lẻ)																						
+																									
+			Kết quả update mong muốn như sau:																						
+
+
+
+M_KOJ																								
+CODE		NAME					BMN_UW			KEIY_DATE			KEIY_KIN			No.dòng								
+A-001		Xây nhà dân dụng 1					A100			2020/2/4			99,995,000 			1		➝	Dòng lẻ, update tiền hợp đồng					
+A-002		Xây nhà dân dụng 2					A300			2020/2/5			104,995,000 			1		➝	Dòng lẻ, update tiền hợp đồng					
+A-003		Xây nhà dân dụng 3					A200			2020/6/10			299,995,000 			1		➝	Dòng lẻ, update tiền hợp đồng					
+A-004		Xây nhà dân dụng 4					A300			2020/5/25			200,000,000 			2		➝	Dòng chẵn, không update					
+A-005		Xây nhà dân dụng 5					A300			2021/3/25			199,995,000 			3		➝	Dòng lẻ, update tiền hợp đồng					
+A-006		Xây nhà dân dụng 6					A200			2021/3/25			201,000,000 			2		➝	Dòng chẵn, không update					
+
+
+
+
+BAI 4
+
+	Yêu cầu:																										
+		Yêu cầu như tại bài tập 3, nhưng add thêm chức năng bên dưới:																									
+			Khi update số tiền hợp đồng thì hãy check tồn tại code phòng ban																								
+			Nếu M_KOJ.BMN_UW không tồn tại ở M_BMN_UW.CODE thì cho là error và dừng xử lý																								
+			Hiển thị nội dung error như bên dưới:																								
+				Code phòng ban (aaa) của công trình (bbb) không tồn tại.																							
+					aaa: replace thành M_KOJ.BMN_UW																						
+					bbb: replace thành M_KOJ.CODE																						
+																											
+			Trường hợp error thì hãy tiến hành rollback data của tất cả các dòng đã update trước đó																								
+			Trường hợp không có error thì commit data																								
+																											
+			Chỉ check tồn tại đối với code phòng ban thuộc dòng chẵn lẻ tương ứng với param được chỉ định																								
+			Không check tồn tại đối với tất cả code phòng ban																								
+																											
+		Thông tin stored cần tạo																									
+			Clone stored tại bài tập 3, sau đó đổi tên stored như bên dưới:																								
+
+
+
+				<tên schema>.UpdateKeiyKinByBmnCheck																							
+			Parameter thì giống như bài tập 3																								
+																											
+			Ngoài ra thì hãy tạo function (không phải stored) dùng để check tồn tại code phòng ban																								
+				Tên function:																							
+					<tên schema>.IsBmnExists																						
+					※<tên schema> thì hãy replace thành tên schema của member																						
+				Parameter:																							
+					・C_BMN_UW  [NVARCHAR(10)]																						
+						Code phòng ban cần check																					
+				Trị trả về:																							
+					INT																						
+						Nếu code phòng ban không tồn tại ➝ trả về 0																					
+						Nếu code phòng ban có tồn tại ➝ trả về 1																					
+																											
+	Kỹ thuật SQL sử dụng:																										
+		Trong bài tập này hãy sử dụng các kỹ thuật bên dưới:																									
+			・Sử dụng TRY … CATCH																								
+			・Nếu code không tồn tại thì cho là exception (sử dụng THROW để tạo exception, tại CATCH sẽ bắt exception này)																								
+			・Tại khối TRY thì tạo chuỗi nội dung error																								
+			・Tại khối CATCH thì print nội dung error (sử dụng lệnh PRINT)																								
+																											
+		Nếu muốn sử dụng các kỹ thuật SQL khác trên thì vui lòng confirm với người hướng dẫn																									
+																											
+	Data:																										
+		Sử dụng data tại sheet Data_BaiTap4.																									
+																											
+	Kết quả mong muốn:																										
+
+
+		※Trường hợp data không có error																	
+			Giả sử, truyền param như sau:																
+			N_KIN = 5,000																
+			N_CHANGE_TYPE = 1 (tăng tiền hợp đồng)																
+			N_ROW_TYPE = 1 (dòng chẵn)																
+																			
+			Kết quả update mong muốn như sau:																
+
+
+M_KOJ																								
+CODE		NAME					BMN_UW			KEIY_DATE			KEIY_KIN			No.dòng								
+A-001		Xây nhà dân dụng 1					A100			2020/2/4			100,000,000 			1		➝	Dòng lẻ, không update					
+A-002		Xây nhà dân dụng 2					A300			2020/2/5			105,000,000 			1		➝	Dòng lẻ, không update					
+A-003		Xây nhà dân dụng 3					A200			2020/6/10			300,000,000 			1		➝	Dòng lẻ, không update					
+A-004		Xây nhà dân dụng 4					A300			2020/5/25			200,005,000 			2		➝	Dòng chẵn, update tiền hợp đồng					
+A-005		Xây nhà dân dụng 5					A300			2021/3/25			200,000,000 			3		➝	Dòng lẻ, không update					
+A-006		Xây nhà dân dụng 6					A200			2021/3/25			201,005,000 			2		➝	Dòng chẵn, update tiền hợp đồng					
+
+
+
+
+		※Trường hợp data có error																				
+			Giả sử, truyền param như sau:																			
+			N_KIN = 5,000																			
+			N_CHANGE_TYPE = 2 (giảm tiền hợp đồng)																			
+			N_ROW_TYPE = 1 (dòng chẵn)																			
+																						
+			Kết quả update mong muốn như sau:																			
+
+
+
+
+Kết quả update mong muốn như sau:																								
+M_KOJ																								
+CODE		NAME					BMN_UW			KEIY_DATE			KEIY_KIN			No.dòng								
+A-001		Xây nhà dân dụng 1					A100			2020/2/4			100,000,000 			1								
+A-002		Xây nhà dân dụng 2					A300			2020/2/5			105,000,000 			1								
+A-003		Xây nhà dân dụng 3					A200			2020/6/10			300,000,000 			1								
+A-004		Xây nhà dân dụng 4					A300			2020/5/25			200,000,000 			2								
+A-005		Xây nhà dân dụng 5					A300			2021/3/25			200,000,000 			3								
+A-006		Xây nhà dân dụng 6					A201			2021/3/25			201,000,000 			1		➝	Code không tồn tại, nhưng là dòng lẻ nên không bị error					
+A-007		Xây nhà dân dụng 7					A301			2021/3/25			201,000,000 			1		➝	Code không tồn tại, nhưng là dòng lẻ nên không bị error					
+A-008		Xây nhà dân dụng 8					A301			2021/4/25			401,000,000 			2		➝	Code không tồn tại, nhưng là dòng chẵn nên bị error					
+
+
+BAI4 DATA
+
+M_BMN_UW							
+CODE			NAME				
+A100			Phòng ban ở Q1				
+A105			Phòng ban ở Q2				
+A200			Phòng ban ở Q3				
+A300			Phòng ban ở Q4				
+
+
+
+Data của trường hợp không có error															
+M_KOJ															
+CODE		NAME					BMN_UW			KEIY_DATE			KEIY_KIN		
+A-001		Xây nhà dân dụng 1					A100			2020/2/4			100,000,000 		
+A-002		Xây nhà dân dụng 2					A300			2020/2/5			105,000,000 		
+A-003		Xây nhà dân dụng 3					A200			2020/6/10			300,000,000 		
+A-004		Xây nhà dân dụng 4					A300			2020/5/25			200,000,000 		
+A-005		Xây nhà dân dụng 5					A300			2021/3/25			200,000,000 		
+A-006		Xây nhà dân dụng 6					A200			2021/3/25			201,000,000 		
+
+
+
+Data của trường hợp có error															
+M_KOJ															
+CODE		NAME					BMN_UW			KEIY_DATE			KEIY_KIN		
+A-001		Xây nhà dân dụng 1					A100			2020/2/4			100,000,000 		
+A-002		Xây nhà dân dụng 2					A300			2020/2/5			105,000,000 		
+A-003		Xây nhà dân dụng 3					A200			2020/6/10			300,000,000 		
+A-004		Xây nhà dân dụng 4					A300			2020/5/25			200,000,000 		
+A-005		Xây nhà dân dụng 5					A300			2021/3/25			200,000,000 		
+A-006		Xây nhà dân dụng 6					A201			2021/3/25			201,000,000 		
+A-007		Xây nhà dân dụng 7					A301			2021/3/25			201,000,000 		
+A-008		Xây nhà dân dụng 8					A301			2021/4/25			401,000,000 		
+
+
+
+BAI1
+DELETE FROM [M_KOJ_AAA_BB] 
+INSERT [M_KOJ_AAA_BB] (CODE, [NAME], BMN_UW, KEIY_DATE, KEIY_KIN) VALUES (N'A-001', N'Xây nhà dân dụng 1', N'A100', N'2020/2/4', 100000000)
+INSERT [M_KOJ_AAA_BB] (CODE, [NAME], BMN_UW, KEIY_DATE, KEIY_KIN) VALUES (N'A-002', N'Xây nhà dân dụng 2', N'A105', N'2020/2/5', 105000000)
+INSERT [M_KOJ_AAA_BB] (CODE, [NAME], BMN_UW, KEIY_DATE, KEIY_KIN) VALUES (N'A-003', N'Xây nhà dân dụng 3', N'A200', N'2020/6/10', 300000000)
+INSERT [M_KOJ_AAA_BB] (CODE, [NAME], BMN_UW, KEIY_DATE, KEIY_KIN) VALUES (N'A-004', N'Xây nhà dân dụng 4', N'A300', N'2020/7/25', 200000000)
+
+DELETE FROM [M_BMN_UW_AAA_BB] 
+INSERT [M_BMN_UW_AAA_BB] (CODE, [NAME]) VALUES (N'A100', N'Phòng ban ở Q1')
+INSERT [M_BMN_UW_AAA_BB] (CODE, [NAME]) VALUES (N'A105', N'Phòng ban ở Q2')
+INSERT [M_BMN_UW_AAA_BB] (CODE, [NAME]) VALUES (N'A200', N'Phòng ban ở Q3')
+INSERT [M_BMN_UW_AAA_BB] (CODE, [NAME]) VALUES (N'A300', N'Phòng ban ở Q4')
+
+DELETE FROM [F_JIK_AAA_BB] 
+INSERT [F_JIK_AAA_BB] (KOJ, NENGETU) VALUES (N'A-001', N'2020/3/1')
+INSERT [F_JIK_AAA_BB] (KOJ, NENGETU) VALUES (N'A-002', N'2020/3/1')
+INSERT [F_JIK_AAA_BB] (KOJ, NENGETU) VALUES (N'A-004', N'2020/8/1')
+
+DELETE FROM [F_JIK_UW_AAA_BB] 
+INSERT [F_JIK_UW_AAA_BB] (KOJ, NENGETU,	GNO, KSY_SYO, YOUSO, SURYO, TANI, TANKA, JIK_KIN) VALUES (N'A-001', N'2020/3/1', 1, 10, 7, 3, N'Cái', 300000, 900000)
+INSERT [F_JIK_UW_AAA_BB] (KOJ, NENGETU,	GNO, KSY_SYO, YOUSO, SURYO, TANI, TANKA, JIK_KIN) VALUES (N'A-002', N'2020/3/1', 1, 10, 8, 30, N'Xe', 120000, 3600000)
+INSERT [F_JIK_UW_AAA_BB] (KOJ, NENGETU,	GNO, KSY_SYO, YOUSO, SURYO, TANI, TANKA, JIK_KIN) VALUES (N'A-002', N'2020/3/1', 2, 11, 2, 50, N'Người', 100000, 5000000)
+INSERT [F_JIK_UW_AAA_BB] (KOJ, NENGETU,	GNO, KSY_SYO, YOUSO, SURYO, TANI, TANKA, JIK_KIN) VALUES (N'A-002', N'2020/3/1', 3, 11, 4, 0, NULL, 0, NULL)
+INSERT [F_JIK_UW_AAA_BB] (KOJ, NENGETU,	GNO, KSY_SYO, YOUSO, SURYO, TANI, TANKA, JIK_KIN) VALUES (N'A-002', N'2020/3/1', 4, 12, 3, 7, N'Cái', 20000, 140000)
+INSERT [F_JIK_UW_AAA_BB] (KOJ, NENGETU,	GNO, KSY_SYO, YOUSO, SURYO, TANI, TANKA, JIK_KIN) VALUES (N'A-004', N'2020/8/1', 1, 10, 7, 2, N'Cái', 200000, 400000)
+
+
+
+BAI2
+DELETE FROM [M_KOJ_AAA_BB] 
+INSERT [M_KOJ_AAA_BB] (CODE, [NAME], BMN_UW, KEIY_DATE, KEIY_KIN) VALUES (N'A-001', N'Xây nhà dân dụng 1', N'A100', N'2020/2/4', 100000000)
+INSERT [M_KOJ_AAA_BB] (CODE, [NAME], BMN_UW, KEIY_DATE, KEIY_KIN) VALUES (N'A-002', N'Xây nhà dân dụng 2', N'A105', N'2020/2/5', 105000000)
+INSERT [M_KOJ_AAA_BB] (CODE, [NAME], BMN_UW, KEIY_DATE, KEIY_KIN) VALUES (N'A-003', N'Xây nhà dân dụng 3', N'A200', N'2020/6/10', 300000000)
+INSERT [M_KOJ_AAA_BB] (CODE, [NAME], BMN_UW, KEIY_DATE, KEIY_KIN) VALUES (N'A-004', N'Xây nhà dân dụng 4', N'A300', N'2020/5/25', 200000000)
+INSERT [M_KOJ_AAA_BB] (CODE, [NAME], BMN_UW, KEIY_DATE, KEIY_KIN) VALUES (N'A-005', N'Xây nhà dân dụng 5', N'A300', N'2021/3/25', 200000000)
+
+
+DELETE FROM [M_BMN_UW_AAA_BB] 
+INSERT [M_BMN_UW_AAA_BB] (CODE, [NAME]) VALUES (N'A100', N'Phòng ban ở Q1')
+INSERT [M_BMN_UW_AAA_BB] (CODE, [NAME]) VALUES (N'A105', N'Phòng ban ở Q2')
+INSERT [M_BMN_UW_AAA_BB] (CODE, [NAME]) VALUES (N'A200', N'Phòng ban ở Q3')
+INSERT [M_BMN_UW_AAA_BB] (CODE, [NAME]) VALUES (N'A300', N'Phòng ban ở Q4')
+
+DELETE FROM [M_KSY_SYO_AAA_BB] 
+INSERT [M_KSY_SYO_AAA_BB] (CODE, [NAME]) VALUES (10, N'Chuẩn bị xây')
+INSERT [M_KSY_SYO_AAA_BB] (CODE, [NAME]) VALUES (11, N'Đào móng')
+INSERT [M_KSY_SYO_AAA_BB] (CODE, [NAME]) VALUES (12, N'Xây tường')
+INSERT [M_KSY_SYO_AAA_BB] (CODE, [NAME]) VALUES (13, N'Xây mái')
+INSERT [M_KSY_SYO_AAA_BB] (CODE, [NAME]) VALUES (14, N'Làm hàng rào')
+
+DELETE FROM [F_JIK_AAA_BB] 
+INSERT [F_JIK_AAA_BB] (KOJ, NENGETU) VALUES (N'A-001', N'2020/4/1')
+INSERT [F_JIK_AAA_BB] (KOJ, NENGETU) VALUES (N'A-002', N'2020/3/1')
+INSERT [F_JIK_AAA_BB] (KOJ, NENGETU) VALUES (N'A-002', N'2020/5/1')
+INSERT [F_JIK_AAA_BB] (KOJ, NENGETU) VALUES (N'A-004', N'2020/6/1')
+INSERT [F_JIK_AAA_BB] (KOJ, NENGETU) VALUES (N'A-004', N'2020/8/1')
+INSERT [F_JIK_AAA_BB] (KOJ, NENGETU) VALUES (N'A-005', N'2021/4/1')
+
+DELETE FROM [F_JIK_UW_AAA_BB] 
+INSERT [F_JIK_UW_AAA_BB] (KOJ, NENGETU,	GNO, KSY_SYO, YOUSO, SURYO, TANI, TANKA, JIK_KIN) VALUES (N'A-001', N'2020/4/1', 1, 10, 7, 3, N'Cái', 300000, 900000)
+INSERT [F_JIK_UW_AAA_BB] (KOJ, NENGETU,	GNO, KSY_SYO, YOUSO, SURYO, TANI, TANKA, JIK_KIN) VALUES (N'A-002', N'2020/3/1', 1, 10, 8, 30, N'Xe', 120000, 3600000)
+INSERT [F_JIK_UW_AAA_BB] (KOJ, NENGETU,	GNO, KSY_SYO, YOUSO, SURYO, TANI, TANKA, JIK_KIN) VALUES (N'A-002', N'2020/3/1', 2, 11, 2, 50, N'Người', 100000, 5000000)
+INSERT [F_JIK_UW_AAA_BB] (KOJ, NENGETU,	GNO, KSY_SYO, YOUSO, SURYO, TANI, TANKA, JIK_KIN) VALUES (N'A-002', N'2020/3/1', 3, 11, 4, 0, NULL, 0, NULL)
+INSERT [F_JIK_UW_AAA_BB] (KOJ, NENGETU,	GNO, KSY_SYO, YOUSO, SURYO, TANI, TANKA, JIK_KIN) VALUES (N'A-002', N'2020/3/1', 4, 12, 3, 7, N'Cái', 20000, 140000)
+INSERT [F_JIK_UW_AAA_BB] (KOJ, NENGETU,	GNO, KSY_SYO, YOUSO, SURYO, TANI, TANKA, JIK_KIN) VALUES (N'A-002', N'2020/3/1', 5, 11, 3, 6, N'Cái', 20000, 120000)
+INSERT [F_JIK_UW_AAA_BB] (KOJ, NENGETU,	GNO, KSY_SYO, YOUSO, SURYO, TANI, TANKA, JIK_KIN) VALUES (N'A-002', N'2020/5/1', 1, 13, 4, 5, N'Cái', 15000, 75000)
+INSERT [F_JIK_UW_AAA_BB] (KOJ, NENGETU,	GNO, KSY_SYO, YOUSO, SURYO, TANI, TANKA, JIK_KIN) VALUES (N'A-004', N'2020/6/1', 1, 10, 2, 11, N'Người', 50000, 550000)
+INSERT [F_JIK_UW_AAA_BB] (KOJ, NENGETU,	GNO, KSY_SYO, YOUSO, SURYO, TANI, TANKA, JIK_KIN) VALUES (N'A-004', N'2020/6/1', 2, 10, 6, 12, N'Xe', 35000, 420000)
+INSERT [F_JIK_UW_AAA_BB] (KOJ, NENGETU,	GNO, KSY_SYO, YOUSO, SURYO, TANI, TANKA, JIK_KIN) VALUES (N'A-004', N'2020/8/1', 1, 11, 7, 2, N'Cái', 200000, 400000)
+INSERT [F_JIK_UW_AAA_BB] (KOJ, NENGETU,	GNO, KSY_SYO, YOUSO, SURYO, TANI, TANKA, JIK_KIN) VALUES (N'A-005', N'2021/4/1', 1, 10, 8, 2, N'Cái', 300000, 600000)
+
+
+BAI3
+DELETE FROM [M_KOJ_AAA_BB] 
+INSERT [M_KOJ_AAA_BB] (CODE, [NAME], BMN_UW, KEIY_DATE, KEIY_KIN) VALUES (N'A-001', N'Xây nhà dân dụng 1', N'A100', N'2020/2/4', 100000000)
+INSERT [M_KOJ_AAA_BB] (CODE, [NAME], BMN_UW, KEIY_DATE, KEIY_KIN) VALUES (N'A-002', N'Xây nhà dân dụng 2', N'A300', N'2020/2/5', 105000000)
+INSERT [M_KOJ_AAA_BB] (CODE, [NAME], BMN_UW, KEIY_DATE, KEIY_KIN) VALUES (N'A-003', N'Xây nhà dân dụng 3', N'A200', N'2020/6/10', 300000000)
+INSERT [M_KOJ_AAA_BB] (CODE, [NAME], BMN_UW, KEIY_DATE, KEIY_KIN) VALUES (N'A-004', N'Xây nhà dân dụng 4', N'A300', N'2020/5/25', 200000000)
+INSERT [M_KOJ_AAA_BB] (CODE, [NAME], BMN_UW, KEIY_DATE, KEIY_KIN) VALUES (N'A-005', N'Xây nhà dân dụng 5', N'A300', N'2021/3/25', 200000000)
+INSERT [M_KOJ_AAA_BB] (CODE, [NAME], BMN_UW, KEIY_DATE, KEIY_KIN) VALUES (N'A-006', N'Xây nhà dân dụng 6', N'A200', N'2021/3/25', 201000000)
+
+
+BAI4
+
+DELETE FROM [M_BMN_UW_AAA_BB] 
+INSERT [M_BMN_UW_AAA_BB] (CODE, [NAME]) VALUES (N'A100', N'Phòng ban ở Q1')
+INSERT [M_BMN_UW_AAA_BB] (CODE, [NAME]) VALUES (N'A105', N'Phòng ban ở Q2')
+INSERT [M_BMN_UW_AAA_BB] (CODE, [NAME]) VALUES (N'A200', N'Phòng ban ở Q3')
+INSERT [M_BMN_UW_AAA_BB] (CODE, [NAME]) VALUES (N'A300', N'Phòng ban ở Q4')
+
+--Truong hop khong co error
+DELETE FROM [M_KOJ_AAA_BB] 
+INSERT [M_KOJ_AAA_BB] (CODE, [NAME], BMN_UW, KEIY_DATE, KEIY_KIN) VALUES (N'A-001', N'Xây nhà dân dụng 1', N'A100', N'2020/2/4', 100000000)
+INSERT [M_KOJ_AAA_BB] (CODE, [NAME], BMN_UW, KEIY_DATE, KEIY_KIN) VALUES (N'A-002', N'Xây nhà dân dụng 2', N'A300', N'2020/2/5', 105000000)
+INSERT [M_KOJ_AAA_BB] (CODE, [NAME], BMN_UW, KEIY_DATE, KEIY_KIN) VALUES (N'A-003', N'Xây nhà dân dụng 3', N'A200', N'2020/6/10', 300000000)
+INSERT [M_KOJ_AAA_BB] (CODE, [NAME], BMN_UW, KEIY_DATE, KEIY_KIN) VALUES (N'A-004', N'Xây nhà dân dụng 4', N'A300', N'2020/5/25', 200000000)
+INSERT [M_KOJ_AAA_BB] (CODE, [NAME], BMN_UW, KEIY_DATE, KEIY_KIN) VALUES (N'A-005', N'Xây nhà dân dụng 5', N'A300', N'2021/3/25', 200000000)
+INSERT [M_KOJ_AAA_BB] (CODE, [NAME], BMN_UW, KEIY_DATE, KEIY_KIN) VALUES (N'A-006', N'Xây nhà dân dụng 6', N'A200', N'2021/3/25', 201000000)
+
+--Truong hop co error
+DELETE FROM [M_KOJ_AAA_BB] 
+INSERT [M_KOJ_AAA_BB] (CODE, [NAME], BMN_UW, KEIY_DATE, KEIY_KIN) VALUES (N'A-001', N'Xây nhà dân dụng 1', N'A100', N'2020/2/4', 100000000)
+INSERT [M_KOJ_AAA_BB] (CODE, [NAME], BMN_UW, KEIY_DATE, KEIY_KIN) VALUES (N'A-002', N'Xây nhà dân dụng 2', N'A300', N'2020/2/5', 105000000)
+INSERT [M_KOJ_AAA_BB] (CODE, [NAME], BMN_UW, KEIY_DATE, KEIY_KIN) VALUES (N'A-003', N'Xây nhà dân dụng 3', N'A200', N'2020/6/10', 300000000)
+INSERT [M_KOJ_AAA_BB] (CODE, [NAME], BMN_UW, KEIY_DATE, KEIY_KIN) VALUES (N'A-004', N'Xây nhà dân dụng 4', N'A300', N'2020/5/25', 200000000)
+INSERT [M_KOJ_AAA_BB] (CODE, [NAME], BMN_UW, KEIY_DATE, KEIY_KIN) VALUES (N'A-005', N'Xây nhà dân dụng 5', N'A300', N'2021/3/25', 200000000)
+INSERT [M_KOJ_AAA_BB] (CODE, [NAME], BMN_UW, KEIY_DATE, KEIY_KIN) VALUES (N'A-006', N'Xây nhà dân dụng 6', N'A201', N'2021/3/25', 201000000)
+INSERT [M_KOJ_AAA_BB] (CODE, [NAME], BMN_UW, KEIY_DATE, KEIY_KIN) VALUES (N'A-007', N'Xây nhà dân dụng 7', N'A301', N'2021/3/25', 201000000)
+INSERT [M_KOJ_AAA_BB] (CODE, [NAME], BMN_UW, KEIY_DATE, KEIY_KIN) VALUES (N'A-008', N'Xây nhà dân dụng 8', N'A301', N'2021/4/25', 401000000)
+
+
+
+
+
