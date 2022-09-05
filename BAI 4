@@ -1,5 +1,4 @@
-DROP PROCEDURE PHAT_LN.UpdateKeiyKinByBmnCheck;
-GO
+
 
 CREATE PROCEDURE [PHAT_LN].[UpdateKeiyKinByBmnCheck] (@N_KIN NUMERIC(15, 0)
 												 ,@N_CHANGE_TYPE INT
