@@ -1,0 +1,50 @@
+CREATE PROCEDURE [PHAT_LN].[UpdateKeiyKinByBmn] (@N_KIN NUMERIC(15, 0)
+												 ,@N_CHANGE_TYPE INT
+												 ,@N_ROW_TYPE INT)
+AS
+BEGIN 
+
+	DECLARE @CODE NVARCHAR(10);
+	DECLARE @NoDong INT;
+	DECLARE cursor_M_KOJ_U CURSOR FOR --KHAI BÁO CURSOR
+	--SELECT CODE, AND No.dòng USE FOR LOOP
+	SELECT CODE,
+		   RANK() OVER (PARTITION BY BMN_UW ORDER BY CODE ) AS 'No.dòng'   --Hàm RANKING MUST USE ORDER BY 
+																		   --Hàm RANK() OVER USE TO SORT INCREASE BY CODE (ORDER BY CODE)
+																		   --Hàm PARTITION BY phan nhóm theo BMN_UW  (PARTITION BY BMN_UW)
+	FROM PHAT_LN.M_KOJ_PHAT_LN AS M_KOJ
+	ORDER BY CODE ASC  -- SORT increase BY CODE
+
+	OPEN cursor_M_KOJ_U --OPEN Cursor(con tro) de doc các dòng du lieu
+
+	FETCH NEXT FROM cursor_M_KOJ_U INTO @CODE, @NoDong  --Doc noi dung cua dong dau tien luu giá trị vào  @CODE, @NoDong  
+
+	WHILE (@@FETCH_STATUS = 0)	-- CHECK FETCH thành công
+	BEGIN
+		--UPDATE INCREASE
+		UPDATE PHAT_LN.M_KOJ_PHAT_LN
+		SET KEIY_KIN = KEIY_KIN + @N_KIN
+		WHERE @N_CHANGE_TYPE = 1 AND (
+								 (CODE = @CODE AND @NoDong % 2 = 0 AND @N_ROW_TYPE = 1) --UPDATE DONG CHAN
+								 OR
+								 (CODE = @CODE AND @NoDong % 2 = 1 AND @N_ROW_TYPE = 2)  --UPDATE DONG LE
+								 )
+
+	
+		--UPDATE DECREASE
+		UPDATE PHAT_LN.M_KOJ_PHAT_LN
+		SET KEIY_KIN = KEIY_KIN - @N_KIN
+		WHERE @N_CHANGE_TYPE = 2 AND (
+								 (CODE = @CODE AND @NoDong % 2 = 0 AND @N_ROW_TYPE = 1) --UPDATE DONG CHAN
+								 OR
+								 (CODE = @CODE AND @NoDong % 2 = 1 AND @N_ROW_TYPE = 2) --UPDATE DONG LE
+								 )
+		
+		FETCH NEXT FROM cursor_M_KOJ_U INTO @CODE, @NoDong --Doc noi dung cua dong tiep theo luu  giá trị vào  @CODE, @NoDong 
+
+	END
+	--Ðóng Cursor và giai phóng tài nguyên khi end
+	CLOSE cursor_M_KOJ_U
+	DEALLOCATE cursor_M_KOJ_U
+
+END;
