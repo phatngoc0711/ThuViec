@@ -1,0 +1,73 @@
+DROP PROCEDURE PHAT_LN.UpdateKeiyKinByBmnCheck;
+GO
+
+CREATE PROCEDURE [PHAT_LN].[UpdateKeiyKinByBmnCheck] (@N_KIN NUMERIC(15, 0)
+												 ,@N_CHANGE_TYPE INT
+												 ,@N_ROW_TYPE INT)
+AS
+BEGIN 
+	
+	DECLARE @CODE NVARCHAR(10)  
+	DECLARE @BMN_UW NVARCHAR(10)
+	DECLARE @NoDong INT
+
+	DECLARE cursor_M_KOJ_U CURSOR FOR --KHAI BÁO CURSOR
+	--SELECT CODE, AND No.dòng USE FOR LOOP
+	SELECT CODE,
+		   BMN_UW, --USE BMN_UW TO CHECK
+		   RANK() OVER (PARTITION BY BMN_UW ORDER BY CODE ) AS 'No.dòng'   --Hàm RANKING MUST USE ORDER BY 
+																		   --Hàm RANK() OVER USE TO SORT INCREASE BY CODE (ORDER BY CODE)
+																		   --Hàm PARTITION BY phân nhóm theo BMN_UW  (PARTITION BY BMN_UW)
+	FROM PHAT_LN.M_KOJ_PHAT_LN AS M_KOJ
+	ORDER BY CODE ASC  -- SORT increase BY CODE
+	-------------------------------------------
+	OPEN cursor_M_KOJ_U; --OPEN CURSOR
+
+	FETCH NEXT FROM cursor_M_KOJ_U INTO @CODE, @BMN_UW, @NoDong  --Doc noi dung cua dong dau tien luu giá trị vào  @CODE, @BMN_UW, @NoDong  
+
+	BEGIN TRY 
+		BEGIN TRAN TRAN_C_B  --KHAI BAO TRANSACTION
+		WHILE (@@FETCH_STATUS = 0)  --FETCH NORMAL
+		BEGIN 
+			IF  (SELECT PHAT_LN.IsBmnExists(@BMN_UW)) = 0 --USE FUNCTION TO CHECK
+			BEGIN
+				RAISERROR ('ERROR', 16, 1); --RETURN LOI -> END XU LY -> CHUYEN XUONG CATCH
+			END
+			ELSE
+			BEGIN
+				--UPDATE INCREASE
+				UPDATE PHAT_LN.M_KOJ_PHAT_LN
+				SET KEIY_KIN = KEIY_KIN + @N_KIN
+				WHERE @N_CHANGE_TYPE = 1 AND (
+										 (CODE = @CODE AND @NoDong % 2 = 0 AND @N_ROW_TYPE = 1) --UPDATE DONG CHAN
+										 OR
+										 (CODE = @CODE AND @NoDong % 2 = 1 AND @N_ROW_TYPE = 2)  --UPDATE DONG LE
+										 )
+
+				--UPDATE DECREASE
+				UPDATE PHAT_LN.M_KOJ_PHAT_LN
+				SET KEIY_KIN = KEIY_KIN - @N_KIN
+				WHERE @N_CHANGE_TYPE = 2 AND (
+										 (CODE = @CODE AND @NoDong % 2 = 0 AND @N_ROW_TYPE = 1) --UPDATE DONG CHAN
+										 OR
+										 (CODE = @CODE AND @NoDong % 2 = 1 AND @N_ROW_TYPE = 2) --UPDATE DONG LE
+										 )
+		
+			END
+
+			FETCH NEXT FROM cursor_M_KOJ_U INTO @CODE, @BMN_UW, @NoDong --Doc noi dung cua dong tiep theo luu  giá trị vào  @CODE, @BMN_UW, @NoDong 
+		END
+		COMMIT TRAN TRAN_C_B -- COMMIT WHEN END TRY NORMAL
+	END TRY
+
+	BEGIN CATCH
+		PRINT N'Code phòng ban ' + @CODE + N' của công trình ' + @BMN_UW + N' không tồn tại' --Use N to display VIETNAMESE
+		ROLLBACK TRAN TRAN_C_B --ROLLBACK WHEN OCCUR ERROR
+	END CATCH	
+
+	--Ðóng Cursor và giai phóng tài nguyên khi end
+	CLOSE cursor_M_KOJ_U
+	DEALLOCATE cursor_M_KOJ_U
+
+END;
+
