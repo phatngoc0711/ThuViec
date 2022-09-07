@@ -1,0 +1,185 @@
+Common VB
+-Quy tắc chung
+Tô màu toàn bộ chỉ thị để đảm bảo đối ứng đầy đủ chức năng, yêu cầu.
+Tất cả các câu Q/A của PG đã đối ứng đầy đủ và chuyển trạng thái thành resolve
+Có xử lý nào chưa chắc chắn nhưng không confirm với PL hay viết Q/A mà tự phán đoán rồi tiến hành đối ứng hay không?
+Confirm yêu cầu tại phiếu yêu cầu lập trình.
+Đối ứng đầy đủ những nội dung liên lạc tại redmine
+Trước khi coding đã tạo UT và nhờ PL review
+-Setting PG
+"Setting thông tin PG như mục 「2)追加/修正プログラム」 tại  TKCT.
+Phương pháp setting như trình bày tại sheet 「SettingPG」"
+Version publish source setting giống như mục ③ của sheet SettingPG
+"Tên cty thì cố định là 「(株)内田洋行ITソリューションズ」 
+(Như khung màu xanh lá cây của sheet SettingPG)"
+GUID của PG:
+     ・Trường hợp chỉnh sửa trên source có sẵn thì không chỉnh sửa GUID
+"     ・Trường hợp tạo mới PG thì tạo mới GUID.
+       Phương pháp tạo GUID và gắn trị thì tiến hành như sheet 「SettingPG」"
+"Tại file .vbproject khi tham chiếu  dll WebServiceAPI_Xxx thì add thêm thuộc tính  SpecificVersion = False
+Vd đúng: tại dự án Nishie (Nse)
+   <Reference Include=""WebServiceAPI_Nse"">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\FrameWork\WebServiceAPI_Nse.dll</HintPath>
+    </Reference>"
+-Comment Source
+Đã tiến hành comment tại đầu class
+Tại mỗi xử lý đều có comment source và nội dung comment đúng ý nghĩa của xử lý.
+Trường hợp PG tạo mới:
+     ・Xóa hết comment dư thừa từ source tham khảo.
+     ・Xóa hết comment  history đầu hàm
+     ・Xóa những xử lý không liên quan đến đối ứng lần này
+     ・Tất cả comment đã được dịch sang tiếng Nhật
+     ・Đảm bảo trong source không còn comment 'TODO, 'VIETNAM
+-Quy tắc đặt tên biển
+Khi đặt tên biến thì tuân thử theo quy tăc bên dưới:
+    ・Kiểu trị số (Integer,Long,Decimal) : n + Tên biến
+    ・Kiểu chuỗi kí tự (String) : x + Tên biến
+    ・Kiểu kí tự (Char) : c + Tên biến
+    ・Kiểu date (Date) : d + Tên biến
+    ・Kiểu Boolean (Boolean) : b + Tên biến
+    ・Kiểu object (Object) : o + Tên biến
+    ・Kiểu dataset : ds + Tên biến
+    ・Kiểu data table : dt + Tên biến
+    ・Kiểu DataRow : dr + Tên biến
+    ・Kiểu Data column : dc + Tên biến
+-Quy tắc đặt tên Control
+Khi đặt tên control, tiền tố thì tuân thủ theo quy tắc bên dưới:
+    ・BaseNumber : num
+    ・BaseText : txt
+    ・BaseMask : txt
+    ・BaseLabel : lab
+    ・BaseButton : btn
+    ・ComboBoxEx : com
+    ・BaseGrid : grd
+    ・CheckBoxEx : chk
+    ・GroupBoxEx : grp
+    ・BaseRadioButton : rad
+    ・BaseMaskedDate : dat
+    ・Panel : pan
+    ・FlowLayoutPanelEx : flp
+    ・TabControl : tab
+    ・ SpinButton: spn
+    ・SplitContainer: spl
+-Khi sử dụng bảng work [W_xxx]
+"Khi insert data vào bảng work thì insert thêm 3 item bên dưới để làm key phân biệt data:
+    +USER_NO
+    +SESSION_ID
+    +PROGRAM_CODE"
+"Khi get data từ bảng work để sử dụng thì filter data theo 3 item bên dưới :
+    + USER_NO
+    + SESSION_ID
+    + PROGRAM_CODE"
+Thực thi delete data theo bộ key USER_NO, SESSION_ID, PROGRAM_CODE tại thời điểm trước khi insert data và sau khi sử dụng.
+-Thống nhất xử lý
+Trong cùng  dự án những PG có các xử lý giống nhau thì phương pháp đối ứng phải giống nhau.
+Nghiêm cấm vừa khi báo biến vừa gán giá trị.
+Xóa bỏ biến và Function không sử dụng.
+Scope của sub, function: tất cả phải khai báo là Protected Overrides
+Scope của biến:
+    ・ServiceCommon: Private
+    ・Biến global: Protected
+    ・Trong Hensu: Public Shared
+File frmMain.vb: chỉ chứa các event.
+File frmMain.Controller.vb : 
+    ・Chứa các funtion xử lý các yêu cầu.
+    ・Chứa event MenuBar.MenuItemClicked
+Sử dụng tối đa 3 IF lồng nhau
+Sử dụng tối đa 2 loop lồng nhau.
+Khi sử dụng toán tử điều kiện:
+    ・Or -> OrElse
+    ・And -> AndAlso
+Progress bar:
+    ・ProgressStart chỉ hiển thị sau khi đã check error các item (Khi click button startInput, F11)
+    ・Khi thao tác và bị error giữa chừng thì phải xử lý ProgressEnd trước khi hiển thị message lỗi.
+    ・Sau khi kết thúc xử lý thì phải gọi ProgressEnd(Me)
+Nếu có xử lý SuspendLayout() thì sau đó phải có xử lý ResumeLayout() 
+Setting Strict Mode: On
+"Khi check tồn tại data tại ds thì check theo thứ tự bên dưới:
+(Sử dụng OrElse, khi thỏa 1 trong những điều kiện bên dưới thì coi như là không tồn tại data)"
+    ・IsNothin(ds)
+    ・ds.Tables.Count = 0
+    ・ds.table(0).Rows.Count = 0
+"Tại function của các button footer , không tiến hành check tồn tại từng item.
+(Đã có tiến hành check error tại event Validating của từng item rồi. Nếu thêm nữa, sẽ giảm performance)"
+-Xử lý tại Item Date
+Đã đối ứng format lịch nhật, lịch tây theo kanri (1 lịch Nhật, 2 lịch Tây)
+    ・Khác bên dưới thì sử dụng Kan_Code(1).N1
+    ・P5GePChu: Code(206).N1
+"    ・Tegata (手形・期日) : 
+        + PG input: Code(14).N1
+        + PG Report: Code(14).N10
+        + P5TePSoufu (手形送付書) : Code(240).N1
+        + P5TeBPrtJunbi (手形発行) : Code(241).N2"
+    ・Kyuyo(給与), Rosai(労賃) : Code(16).N1
+    ・P5GyPPayAnnai(注文書発行) : Code(201).N1
+"Kiểu format đã đúng chưa ?
+Vd : Trường hợp lịch tây thì hiển thị là yyyy年MM月分 hay yyyy/MM"
+Xử lý get ngày đầu tháng, cuối tháng tại item date thì có phụ thuộc vào SIME hay không?
+Khi get ngày cuối tháng(fEndDate) theo SIME thì phải sử dụng kết hợp với hàm fProcessMonth() hoặc ngày truyền vào phải là đầu tháng (ngày 01).
+-Xử lý Exception 
+Tại các event thì phải add thêm xử lý Exception.
+Nghiêm cấm 「Throw Ex」tại Catch những chỗ đang 「Throw Ex」 thì hãy sửa thành 「Throw」
+"Tại Catch nếu không hiển thị message lỗi mà đang Throw New Exception(xMsg) thì hãy truyền thêm param 「ex」.
+Trước đây: Throw New Exception(xMsg)
+Bây giờ : Throw New Exception(xMsg, ex)"
+-Build PG
+Sau khi build PG, 
+    ・Không phát sinh warning
+-Sản phẩm giao hàng
+Nếu PG có sử dụng data(tạo mới) từ các table setting tiền đề bên dưới thì hãy tạo script và check lên TFS :
+    ・M_KANRI, M_KANRI_UW
+    ・M_MEI, M_MKBN, M_MEI_UW, M_ME_CONTROL
+    ・M_LINE
+"Tại các file script thì định dạng file đã đúng là 
+「Unicode(UTF-8 シグネチャー付き) - コードページ 65001」 hay chưa?
+Phương pháp kiểm tra: nhấn tổ hợp phím Alt + F + V chọn option thứ 2 từ trên xuống là đúng."
+Add file scirpt check in mới vào file Script.PostDeployment.sql
+Khi check in source lên TFS thì phải gắn work item
+
+
+
+Common SP
+-SQL 
+Get data đầy đủ tại các item như trình bày tại mục 「12)出力項目」
+-Hiển thị report
+"Có yêu cầu đối ứng title động hay không? 
+(sử dụng W_COLHEAD)"
+"Các cột hiển thị đầy đủ như layout tại TKCT chưa? 
+(setting visible tại cột)"
+"Setting đầy đủ các pattern như chỉ thị yêu cầu chưa? 
+(mặc định thì chỉ có 1 pattern USE_NO = 0 và CODE = 0)"
+Có yêu cầu setting cho item tại bộ phận header không?
+Có yêu cầu setting sang trang không?
+"Có yêu cầu setting group không?
+Trường hợp có group thì setting màu của group đúng chưa?"
+Trường hợp setting group thì đã setting tống kết tại các item tiền chính xác chưa ?
+Format hiển thị tại các item setting chính xác chưa ?
+Font, size, text align setting như chỉ thị yêu cầu chưa ?
+Có yêu cầu xử lý drilldown không?
+-Search panel
+Sử dụng search panel đúng nghiệp vụ
+Setting đầy đủ tại các table bên dưới :
+    ・dbo.ToiawaseProperties
+    ・dbo.ToiawaseColumnProperties
+    ・dbo.ToiawaseReportProperties
+    ・dbo.ToiawaseDefinations
+    ・dbo.ToiawaseSearchPanels
+-Sản phẩm giao hàng
+Tạo script đầy đủ cho các table bên dưới chưa (mỗi table 1 file riêng)
+    ・dbo.ToiawaseProperties
+    ・dbo.ToiawaseColumnProperties
+    ・dbo.ToiawaseReportProperties
+    ・dbo.ToiawaseDefinations
+    ・dbo.ToiawaseSearchPanels
+"Có đôi ứng drilldown không? 
+Trường hợp có đã tạo script T_PROGRAM_LINK để GH chưa?"
+
+
+
+
+
+
+
+
+
