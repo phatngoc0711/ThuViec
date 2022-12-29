@@ -1,0 +1,51 @@
+DeleteW_BMN														
+InsertW_BMN (t/h Hensu.param.pBmnKaisouChk = 1)														
+InsertW_BMN (t/h Hensu.param.pBmnKaisouChk <> 1)														
+GetKaisMaster														
+fSqlTxt_1 (t/h Hensu.param.pKojShukeOpt = 1)														
+fSqlTxt_1 (t/h Hensu.param.pKojShukeOpt <> 1)														
+fSqlTxt_2 (t/h Hensu.param.pKojShukeOpt = 1)														
+fSqlTxt_2 (t/h Hensu.param.pKojShukeOpt <> 1)														
+fSqlTxt_3 (t/h Hensu.param.pKojShukeOpt = 1)														
+fSqlTxt_3 (t/h Hensu.param.pKojShukeOpt <> 1)														
+fSqlTxt_4 (t/h Hensu.param.pKojShukeOpt = 1)														
+fSqlTxt_4 (t/h Hensu.param.pKojShukeOpt <> 1)														
+fSqlTxt_5														
+
+
+
+Tạo stored [DeleteW_BMN]														
+Tạo stored [InsertW_BMN_001]														
+Tạo stored [InsertW_BMN_002]														
+Tạo stored [GetKaisMaster]														
+Tạo stored [fSqlTxt_1_Koj]														
+Tạo stored [fSqlTxt_1_KojUw]														
+Tạo stored [fSqlTxt_2_Koj]														
+Tạo stored [fSqlTxt_2_KojUw]														
+Tạo stored [fSqlTxt_3_Koj]														
+Tạo stored [fSqlTxt_3_KojUw]														
+Tạo stored [fSqlTxt_4_Koj]														
+Tạo stored [fSqlTxt_4_KojUw]														
+Tạo stored [fSqlTxt_5]														
+
+
+
+Tham khảo V5 rồi tạo										
+Tham khảo V5 rồi tạo										
+Tham khảo V5 rồi tạo										
+Tham khảo V5 rồi tạo										
+Tham chiếu データ照会定義.No1										
+"Tham khảo V5 rồi tạo
+Về kỹ thuật convert thì hãy tham khảo データ照会定義.No1"										
+"Tham khảo V5 rồi tạo
+Về kỹ thuật convert thì hãy tham khảo データ照会定義.No1"										
+"Tham khảo V5 rồi tạo
+Về kỹ thuật convert thì hãy tham khảo データ照会定義.No1"										
+"Tham khảo V5 rồi tạo
+Về kỹ thuật convert thì hãy tham khảo データ照会定義.No1"										
+"Tham khảo V5 rồi tạo
+Về kỹ thuật convert thì hãy tham khảo データ照会定義.No1"										
+Tham chiếu データ照会定義.No2										
+"Tham khảo V5 rồi tạo
+Về kỹ thuật convert thì hãy tham khảo データ照会定義.No2"										
+Tham khảo V5 rồi tạo										
