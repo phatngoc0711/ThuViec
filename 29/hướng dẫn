@@ -1,0 +1,8 @@
+																						
+																						
+																						
+SUM([dbo].[Fun_IIfDate](SEK.SEIK_DATE,N'>=',@START_DDATE_FROM_SIME@,[dbo].[Fun_IIfDate](SEIK_DATE,N'<=',@END_DDATE_TO_SIME@,ISNULL(KIN,0),0),0))																						
+SUM(IIF(SEIK_DATE IS NULL,0,[dbo].[Fun_IIfDate]([dbo].[Fun_Sime](SEIK_DATE,@SIME_DATE@),'<=',DATEADD(month, -1, @START_DDATE_FROM_1@),ISNULL(KIN,0),0)))																						
+～																						
+SUM(IIF(SEIK_DATE IS NULL,0,[dbo].[Fun_IIfDate]([dbo].[Fun_Sime](SEIK_DATE,@SIME_DATE@),N'=',DATEADD(month,5, @START_DDATE_FROM_1@),ISNULL(U_ZEI,0),0)))																						
+																						
