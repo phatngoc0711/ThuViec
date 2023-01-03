@@ -1,0 +1,412 @@
+CREATE PROCEDURE [Toiawase_Etc].[fSqlTxt_1_KojUw] (
+    @N__USER_NO AS INT
+    ,@C__SESSION_ID AS NVARCHAR(100)
+    ,@N__PROGRAM_CODE AS INT
+    ,@N__KAIS_CHK AS INT
+    ,@C__KAIS_FROM AS NVARCHAR(20)
+    ,@C__KAIS_TO AS NVARCHAR(20)
+    ,@N__KOJ_CHK AS INT
+    ,@C__KOJ_FROM AS NVARCHAR(20)
+    ,@C__KOJ_TO AS NVARCHAR(20)
+    ,@N__KOJ_UW_CHK AS INT
+    ,@C__KOJ_UW_FROM AS NVARCHAR(20)
+    ,@C__KOJ_UW_TO AS NVARCHAR(20)
+    ,@N__TOR_CHK AS INT
+    ,@C__TOR_FROM AS NVARCHAR(20)
+    ,@C__TOR_TO AS NVARCHAR(20)
+    ,@N__Eigyo_Tant_CHK AS INT
+    ,@C__Eigyo_Tant_FROM AS NVARCHAR(20)
+    ,@C__Eigyo_Tant_TO AS NVARCHAR(20)
+    ,@D__START_DDATE_FROM_SIME AS DATETIME
+    ,@D__END_DDATE_TO_SIME AS DATETIME
+    ,@D__SIME_DATE AS DATETIME
+    ,@D__START_DDATE_FROM_1 AS DATETIME
+    )
+AS
+SET NOCOUNT ON;
+
+BEGIN
+    SELECT [KOJ].[KAIS]
+        ,[KOJ].[KAIS_NAME]
+        ,[KOJ].[BMN_UW]
+        ,[KOJ].[BMN_UW_NAME]
+        ,[KOJ].[SEIK]
+        ,[KOJ].[SEIK_RYAKU]
+        ,[KOJ].[SEIK_KANA]
+        ,[KOJ].[SEIK_NAME]
+        ,[KOJ].[SEIK_NAME2]
+        ,[KOJ].[KAISYU_KBN]
+        ,[KOJ].[SIME_HACH]
+        ,[KOJ].[KAISYU]
+        ,[KOJ].[KAISYU_KIN_RITU]
+        ,[KOJ].[KAISYU_TEG_RITU]
+        ,[KOJ].[KAISYU_TEG_SAIT]
+        ,[KOJ].[HORYU_RITU]
+        ,[KOJ].[KOJ]
+        ,[KOJ].[KOJ_UW]
+        ,[KOJ].[KOJ_NAME]
+        ,[KOJ].[HACH]
+        ,[KOJ].[HACH_NAME]
+        ,[KOJ].[KOUHOU]
+        ,[KOJ].[KOUHOU_NAME]
+        ,[KOJ].[EIGYO_TANT_NAME]
+        ,[KOJ].[KOJ_TANT_NAME]
+        ,[SUB].[SEIK_KIN]
+        ,[SUB].[SEIK_ZEI]
+        ,[KOJ].[SYUNKO]
+        ,[KOJ].[KAN_FURI]
+        ,[KOJ].[KEIY_KIN]
+        ,[KOJ].[ZEI_KIN]
+        ,[SUB].[SEIK_KIN]
+        ,[SUB].[T_SEI_KIN]
+        ,[SUB].[N1MSEIK_KIN]
+        ,[SUB].[N1MSEIK_ZEI]
+        ,[SUB].[NRSEIK_KIN]
+        ,[SUB].[NR1SEIK_KIN]
+        ,[SUB].[NR2SEIK_KIN]
+        ,[SUB].[NR3SEIK_KIN]
+        ,[SUB].[NR4SEIK_KIN]
+        ,[SUB].[NR5SEIK_KIN]
+        ,[SUB].[NSEIK_KIN]
+        ,[SUB].[N1SEIK_KIN]
+        ,[SUB].[N2SEIK_KIN]
+        ,[SUB].[N3SEIK_KIN]
+        ,[SUB].[N4SEIK_KIN]
+        ,[SUB].[N5SEIK_KIN]
+        ,[SUB].[NSEIK_ZEI]
+        ,[SUB].[N1SEIK_ZEI]
+        ,[SUB].[N2SEIK_ZEI]
+        ,[SUB].[N3SEIK_ZEI]
+        ,[SUB].[N4SEIK_ZEI]
+        ,[SUB].[N5SEIK_ZEI]
+        ,0 AS [HANBAI_SW]
+    FROM (
+        SELECT [KOJ].[KAIS] AS [KAIS]
+            ,[KAI].[RYAKU] AS [KAIS_NAME]
+            ,[KJU].[BMN_UW] AS [BMN_UW]
+            ,[BMN].[RYAKU] AS [BMN_UW_NAME]
+            ,[KJU].[SEIK] AS [SEIK]
+            ,[TOR].[RYAKU] AS [SEIK_RYAKU]
+            ,[TOR].[KANA] AS [SEIK_KANA]
+            ,[TOR].[NAME] AS [SEIK_NAME]
+            ,[TOR].[NAME2] AS [SEIK_NAME2]
+            ,[TOR].[KAISYU_KBN]
+            ,[TOR].[SIME_HACH]
+            ,[TOR].[KAISYU]
+            ,[TOR].[KAISYU_KIN_RITU]
+            ,[TOR].[KAISYU_TEG_RITU]
+            ,[TOR].[KAISYU_TEG_SAIT]
+            ,[TOR].[HORYU_RITU]
+            ,[KJU].[KOJ]
+            ,[KJU].[CODE] AS [KOJ_UW]
+            ,[KJU].[RYAKU] AS [KOJ_NAME]
+            ,[KJU].[HACH] AS [HACH]
+            ,[TO2].[RYAKU] AS [HACH_NAME]
+            ,[KJU].[YOBI_CODE2] AS [KOUHOU]
+            ,[MEI].[RYAKU] AS [KOUHOU_NAME]
+            ,[TAE].[NAME] AS [EIGYO_TANT_NAME]
+            ,[TAK].[NAME] AS [KOJ_TANT_NAME]
+            ,[KJU].[SYUNKO]
+            ,[KJU].[KAN_FURI]
+            ,ISNULL(([KJU].[KEIY_KIN] + [KJU].[KEIY_KIN_HEN]), 0) AS [KEIY_KIN]
+            ,ISNULL(([KJU].[ZEI_KIN] + [KJU].[ZEI_KIN_HEN]), 0) AS [ZEI_KIN]
+        FROM [M_KOJ] AS [KOJ]
+        INNER JOIN [M_KOJ_UW] AS [KJU] ON [KJU].[KOJ] = [KOJ].[CODE]
+        LEFT JOIN [M_KAIS] AS [KAI] ON [KOJ].[KAIS] = [KAI].[CODE]
+        LEFT JOIN [M_BMN_UW] AS [BMN] ON [KJU].[BMN_UW] = [BMN].[CODE]
+        LEFT JOIN [M_TOR] AS [TO2] ON [KJU].[HACH] = [TO2].[CODE]
+        LEFT JOIN [M_TANT] AS [TAE] ON [KJU].[EIGYO_TANT] = [TAE].[CODE]
+        LEFT JOIN [M_TANT] AS [TAK] ON [KJU].[KOJ_TANT] = [TAK].[CODE]
+        LEFT JOIN [V_HACH] AS [TOR] ON [KJU].[SEIK] = [TOR].[CODE]
+        LEFT JOIN [M_MEI] AS [MEI] ON [KJU].[YOBI_CODE2] = [MEI].[CODE]
+            AND [MKBN] = 3207600
+        WHERE [KJU].[KOJ] <> [KJU].[BMN_UW]
+            AND [KJU].[BMN_UW] IN (
+                SELECT [BMN_UW]
+                FROM [W_BMN]
+                WHERE @N__USER_NO = [USER_NO]
+                    AND @C__SESSION_ID = [SESSION_ID]
+                    AND @N__PROGRAM_CODE = [PROGRAM_CODE]
+                )
+            AND [KJU].[NYU_KANRI_KBN] = 0
+            AND (
+                @N__KAIS_CHK = 0
+                OR (
+                    @N__KAIS_CHK = 1
+                    AND [KOJ].[KAIS] BETWEEN @C__KAIS_FROM
+                        AND @C__KAIS_TO
+                    )
+                )
+            AND (
+                @N__KOJ_CHK = 0
+                OR (
+                    @N__KOJ_CHK = 1
+                    AND [KJU].[KOJ] BETWEEN @C__KOJ_FROM
+                        AND @C__KOJ_TO
+                    )
+                )
+            AND (
+                @N__KOJ_UW_CHK = 0
+                OR (
+                    @N__KOJ_UW_CHK = 1
+                    AND [KJU].[CODE] BETWEEN @C__KOJ_UW_FROM
+                        AND @C__KOJ_UW_TO
+                    )
+                )
+            AND (
+                @N__TOR_CHK = 0
+                OR (
+                    @N__TOR_CHK = 1
+                    AND [KJU].[SEIK] BETWEEN @C__TOR_FROM
+                        AND @C__TOR_TO
+                    )
+                )
+            AND (
+                @N__Eigyo_Tant_CHK = 0
+                OR (
+                    @N__Eigyo_Tant_CHK = 1
+                    AND [KJU].[EIGYO_TANT] BETWEEN @C__Eigyo_Tant_FROM
+                        AND @C__Eigyo_Tant_TO
+                    )
+                )
+        ) AS [KOJ]
+    LEFT JOIN (
+        SELECT [SEK].[KAIS]
+            ,[SEK].[KOJ]
+            ,[SEK].[KOJ_UW]
+            ,SUM(ISNULL([KIN], 0)) AS [SEIK_KIN]
+            ,SUM(ISNULL([U_ZEI], 0)) AS [SEIK_ZEI]
+            ,SUM([dbo].[Fun_IIfDate]([SEIK_DATE], '>=', @D__START_DDATE_FROM_SIME, [dbo].[Fun_IIfDate]([SEIK_DATE], '<=', @D__END_DDATE_TO_SIME, ISNULL([KIN], 0), 0), 0)) AS [T_SEI_KIN]
+            ,SUM(IIF([SEIK_DATE] IS NULL, 0, [dbo].[Fun_IIfDate]([dbo].[Fun_Sime]([SEIK_DATE], @D__SIME_DATE), '<=', DATEADD(month, - 1, @D__START_DDATE_FROM_1), ISNULL([KIN], 0), 0))) AS [N1MSEIK_KIN]
+            ,SUM(IIF([SEIK_DATE] IS NULL, 0, [dbo].[Fun_IIfDate]([dbo].[Fun_Sime]([SEIK_DATE], @D__SIME_DATE), '<=', DATEADD(month, - 1, @D__START_DDATE_FROM_1), ISNULL([U_ZEI], 0), 0))) AS [N1MSEIK_ZEI]
+            ,SUM(IIF([SEIK_DATE] IS NULL, 0, [dbo].[Fun_IIfDate]([dbo].[Fun_Sime]([SEIK_DATE], @D__SIME_DATE), '<=', @D__START_DDATE_FROM_1, ISNULL([KIN], 0), 0))) AS [NRSEIK_KIN]
+            ,SUM(IIF([SEIK_DATE] IS NULL, 0, [dbo].[Fun_IIfDate]([dbo].[Fun_Sime]([SEIK_DATE], @D__SIME_DATE), '<=', DATEADD(month, 1, @D__START_DDATE_FROM_1), ISNULL([KIN], 0), 0))) AS [NR1SEIK_KIN]
+            ,SUM(IIF([SEIK_DATE] IS NULL, 0, [dbo].[Fun_IIfDate]([dbo].[Fun_Sime]([SEIK_DATE], @D__SIME_DATE), '<=', DATEADD(month, 2, @D__START_DDATE_FROM_1), ISNULL([KIN], 0), 0))) AS [NR2SEIK_KIN]
+            ,SUM(IIF([SEIK_DATE] IS NULL, 0, [dbo].[Fun_IIfDate]([dbo].[Fun_Sime]([SEIK_DATE], @D__SIME_DATE), '<=', DATEADD(month, 3, @D__START_DDATE_FROM_1), ISNULL([KIN], 0), 0))) AS [NR3SEIK_KIN]
+            ,SUM(IIF([SEIK_DATE] IS NULL, 0, [dbo].[Fun_IIfDate]([dbo].[Fun_Sime]([SEIK_DATE], @D__SIME_DATE), '<=', DATEADD(month, 4, @D__START_DDATE_FROM_1), ISNULL([KIN], 0), 0))) AS [NR4SEIK_KIN]
+            ,SUM(IIF([SEIK_DATE] IS NULL, 0, [dbo].[Fun_IIfDate]([dbo].[Fun_Sime]([SEIK_DATE], @D__SIME_DATE), '<=', DATEADD(month, 5, @D__START_DDATE_FROM_1), ISNULL([KIN], 0), 0))) AS [NR5SEIK_KIN]
+            ,SUM(IIF([SEIK_DATE] IS NULL, 0, [dbo].[Fun_IIfDate]([dbo].[Fun_Sime]([SEIK_DATE], @D__SIME_DATE), '=', @D__START_DDATE_FROM_1, ISNULL([KIN], 0), 0))) AS [NSEIK_KIN]
+            ,SUM(IIF([SEIK_DATE] IS NULL, 0, [dbo].[Fun_IIfDate]([dbo].[Fun_Sime]([SEIK_DATE], @D__SIME_DATE), '=', DATEADD(month, 1, @D__START_DDATE_FROM_1), ISNULL([KIN], 0), 0))) AS [N1SEIK_KIN]
+            ,SUM(IIF([SEIK_DATE] IS NULL, 0, [dbo].[Fun_IIfDate]([dbo].[Fun_Sime]([SEIK_DATE], @D__SIME_DATE), '=', DATEADD(month, 2, @D__START_DDATE_FROM_1), ISNULL([KIN], 0), 0))) AS [N2SEIK_KIN]
+            ,SUM(IIF([SEIK_DATE] IS NULL, 0, [dbo].[Fun_IIfDate]([dbo].[Fun_Sime]([SEIK_DATE], @D__SIME_DATE), '=', DATEADD(month, 3, @D__START_DDATE_FROM_1), ISNULL([KIN], 0), 0))) AS [N3SEIK_KIN]
+            ,SUM(IIF([SEIK_DATE] IS NULL, 0, [dbo].[Fun_IIfDate]([dbo].[Fun_Sime]([SEIK_DATE], @D__SIME_DATE), '=', DATEADD(month, 4, @D__START_DDATE_FROM_1), ISNULL([KIN], 0), 0))) AS [N4SEIK_KIN]
+            ,SUM(IIF([SEIK_DATE] IS NULL, 0, [dbo].[Fun_IIfDate]([dbo].[Fun_Sime]([SEIK_DATE], @D__SIME_DATE), '=', DATEADD(month, 5, @D__START_DDATE_FROM_1), ISNULL([KIN], 0), 0))) AS [N5SEIK_KIN]
+            ,SUM(IIF([SEIK_DATE] IS NULL, 0, [dbo].[Fun_IIfDate]([dbo].[Fun_Sime]([SEIK_DATE], @D__SIME_DATE), '=', @D__START_DDATE_FROM_1, ISNULL([U_ZEI], 0), 0))) AS [NSEIK_ZEI]
+            ,SUM(IIF([SEIK_DATE] IS NULL, 0, [dbo].[Fun_IIfDate]([dbo].[Fun_Sime]([SEIK_DATE], @D__SIME_DATE), '=', DATEADD(month, 1, @D__START_DDATE_FROM_1), ISNULL([U_ZEI], 0), 0))) AS [N1SEIK_ZEI]
+            ,SUM(IIF([SEIK_DATE] IS NULL, 0, [dbo].[Fun_IIfDate]([dbo].[Fun_Sime]([SEIK_DATE], @D__SIME_DATE), '=', DATEADD(month, 2, @D__START_DDATE_FROM_1), ISNULL([U_ZEI], 0), 0))) AS [N2SEIK_ZEI]
+            ,SUM(IIF([SEIK_DATE] IS NULL, 0, [dbo].[Fun_IIfDate]([dbo].[Fun_Sime]([SEIK_DATE], @D__SIME_DATE), '=', DATEADD(month, 3, @D__START_DDATE_FROM_1), ISNULL([U_ZEI], 0), 0))) AS [N3SEIK_ZEI]
+            ,SUM(IIF([SEIK_DATE] IS NULL, 0, [dbo].[Fun_IIfDate]([dbo].[Fun_Sime]([SEIK_DATE], @D__SIME_DATE), '=', DATEADD(month, 4, @D__START_DDATE_FROM_1), ISNULL([U_ZEI], 0), 0))) AS [N4SEIK_ZEI]
+            ,SUM(IIF([SEIK_DATE] IS NULL, 0, [dbo].[Fun_IIfDate]([dbo].[Fun_Sime]([SEIK_DATE], @D__SIME_DATE), '=', DATEADD(month, 5, @D__START_DDATE_FROM_1), ISNULL([U_ZEI], 0), 0))) AS [N5SEIK_ZEI]
+        FROM [D_SEIK] AS [SEK]
+        GROUP BY [SEK].[KAIS]
+            ,[SEK].[KOJ]
+            ,[SEK].[KOJ_UW]
+        ) AS [SUB] ON [KOJ].[KAIS] = [SUB].[KAIS]
+        AND [KOJ].[KOJ] = [SUB].[KOJ]
+        AND [KOJ].[KOJ_UW] = [SUB].[KOJ_UW]
+    
+    UNION
+    
+    SELECT [KOJ].[KAIS]
+        ,[KOJ].[KAIS_NAME]
+        ,[KOJ].[BMN_UW]
+        ,[KOJ].[BMN_UW_NAME]
+        ,[KOJ].[SEIK]
+        ,[KOJ].[SEIK_RYAKU]
+        ,[KOJ].[SEIK_KANA]
+        ,[KOJ].[SEIK_NAME]
+        ,[KOJ].[SEIK_NAME2]
+        ,[KOJ].[KAISYU_KBN]
+        ,[KOJ].[SIME_HACH]
+        ,[KOJ].[KAISYU]
+        ,[KOJ].[KAISYU_KIN_RITU]
+        ,[KOJ].[KAISYU_TEG_RITU]
+        ,[KOJ].[KAISYU_TEG_SAIT]
+        ,[KOJ].[HORYU_RITU]
+        ,[KOJ].[KOJ]
+        ,[KOJ].[KOJ_UW]
+        ,[KOJ].[KOJ_NAME]
+        ,[KOJ].[HACH]
+        ,[KOJ].[HACH_NAME]
+        ,[KOJ].[KOUHOU]
+        ,[KOJ].[KOUHOU_NAME]
+        ,[KOJ].[EIGYO_TANT_NAME]
+        ,[KOJ].[KOJ_TANT_NAME]
+        ,[SUB].[SEIK_KIN]
+        ,[SUB].[SEIK_ZEI]
+        ,[KOJ].[SYUNKO]
+        ,[KOJ].[KAN_FURI]
+        ,[KOJ].[KEIY_KIN]
+        ,[KOJ].[ZEI_KIN]
+        ,[SUB].[SEIK_KIN]
+        ,[SUB].[T_SEI_KIN]
+        ,[SUB].[N1MSEIK_KIN]
+        ,[SUB].[N1MSEIK_ZEI]
+        ,[SUB].[NRSEIK_KIN]
+        ,[SUB].[NR1SEIK_KIN]
+        ,[SUB].[NR2SEIK_KIN]
+        ,[SUB].[NR3SEIK_KIN]
+        ,[SUB].[NR4SEIK_KIN]
+        ,[SUB].[NR5SEIK_KIN]
+        ,[SUB].[NSEIK_KIN]
+        ,[SUB].[N1SEIK_KIN]
+        ,[SUB].[N2SEIK_KIN]
+        ,[SUB].[N3SEIK_KIN]
+        ,[SUB].[N4SEIK_KIN]
+        ,[SUB].[N5SEIK_KIN]
+        ,[SUB].[NSEIK_ZEI]
+        ,[SUB].[N1SEIK_ZEI]
+        ,[SUB].[N2SEIK_ZEI]
+        ,[SUB].[N3SEIK_ZEI]
+        ,[SUB].[N4SEIK_ZEI]
+        ,[SUB].[N5SEIK_ZEI]
+        ,1 AS [HANBAI_SW]
+    FROM (
+        SELECT [KOJ].[KAIS]
+            ,[KOJ].[KAIS_NAME]
+            ,[KOJ].[BMN_UW]
+            ,[KOJ].[BMN_UW_NAME]
+            ,[KEI].[KEIY] AS [SEIK]
+            ,[TOR].[RYAKU] AS [SEIK_RYAKU]
+            ,[TOR].[KANA] AS [SEIK_KANA]
+            ,[TOR].[NAME] AS [SEIK_NAME]
+            ,[TOR].[NAME2] AS [SEIK_NAME2]
+            ,[TOR].[KAISYU_KBN]
+            ,[TOR].[SIME_HACH]
+            ,[TOR].[KAISYU]
+            ,[TOR].[KAISYU_KIN_RITU]
+            ,[TOR].[KAISYU_TEG_RITU]
+            ,[TOR].[KAISYU_TEG_SAIT]
+            ,[TOR].[HORYU_RITU]
+            ,[KOJ].[KOJ]
+            ,[KOJ].[KOJ_UW]
+            ,[KOJ].[KOJ_NAME]
+            ,[KOJ].[HACH]
+            ,[KOJ].[HACH_NAME]
+            ,[KOJ].[KOUHOU]
+            ,[KOJ].[KOUHOU_NAME]
+            ,[KOJ].[EIGYO_TANT_NAME]
+            ,[KOJ].[KOJ_TANT_NAME]
+            ,[KOJ].[SYUNKO]
+            ,[KOJ].[KAN_FURI]
+            ,[KOJ].[KEIY_KIN]
+            ,[KOJ].[ZEI_KIN]
+        FROM [F_KEIYAKU] AS [KEI]
+        LEFT JOIN [V_HACH] AS [TOR] ON [KEI].[KEIY] = [TOR].[CODE]
+        INNER JOIN (
+            SELECT [KOJ].[KAIS] AS [KAIS]
+                ,[KAI].[RYAKU] AS [KAIS_NAME]
+                ,[KJU].[BMN_UW]
+                ,[BMN].[RYAKU] AS [BMN_UW_NAME]
+                ,[KJU].[KOJ]
+                ,[KJU].[CODE] AS [KOJ_UW]
+                ,[KJU].[RYAKU] AS [KOJ_NAME]
+                ,[KJU].[HACH]
+                ,[TOR].[RYAKU] AS [HACH_NAME]
+                ,[KJU].[YOBI_CODE2] AS [KOUHOU]
+                ,[MEI].[RYAKU] AS [KOUHOU_NAME]
+                ,[TAE].[NAME] AS [EIGYO_TANT_NAME]
+                ,[TAK].[NAME] AS [KOJ_TANT_NAME]
+                ,[KJU].[SYUNKO]
+                ,[KJU].[KAN_FURI]
+                ,ISNULL(([KJU].[KEIY_KIN] + [KJU].[KEIY_KIN_HEN]), 0) AS [KEIY_KIN]
+                ,ISNULL(([KJU].[ZEI_KIN] + [KJU].[ZEI_KIN_HEN]), 0) AS [ZEI_KIN]
+            FROM [M_KOJ] AS [KOJ]
+            INNER JOIN [M_KOJ_UW] AS [KJU] ON [KJU].[KOJ] = [KOJ].[CODE]
+            LEFT JOIN [M_KAIS] AS [KAI] ON [KOJ].[KAIS] = [KAI].[CODE]
+            LEFT JOIN [M_BMN_UW] AS [BMN] ON [KJU].[BMN_UW] = [BMN].[CODE]
+            LEFT JOIN [M_TOR] AS [TOR] ON [KJU].[HACH] = [TOR].[CODE]
+            LEFT JOIN [M_TANT] AS [TAE] ON [KJU].[EIGYO_TANT] = [TAE].[CODE]
+            LEFT JOIN [M_TANT] AS [TAK] ON [KJU].[KOJ_TANT] = [TAK].[CODE]
+            LEFT JOIN [M_MEI] AS [MEI] ON [KJU].[YOBI_CODE2] = [MEI].[CODE]
+                AND [MKBN] = 3207600
+            WHERE [KJU].[KOJ] = [KJU].[BMN_UW]
+                AND [KJU].[BMN_UW] IN (
+                    SELECT [BMN_UW]
+                    FROM [W_BMN]
+                    WHERE @N__USER_NO = [USER_NO]
+                        AND @C__SESSION_ID = [SESSION_ID]
+                        AND @N__PROGRAM_CODE = [PROGRAM_CODE]
+                    )
+                AND [KJU].[NYU_KANRI_KBN] = 0
+                AND (
+                    @N__KAIS_CHK = 0
+                    OR (
+                        @N__KAIS_CHK = 1
+                        AND [KOJ].[KAIS] BETWEEN @C__KAIS_FROM
+                            AND @C__KAIS_TO
+                        )
+                    )
+                AND (
+                    @N__KOJ_CHK = 0
+                    OR (
+                        @N__KOJ_CHK = 1
+                        AND [KJU].[KOJ] BETWEEN @C__KOJ_FROM
+                            AND @C__KOJ_TO
+                        )
+                    )
+                AND (
+                    @N__KOJ_UW_CHK = 0
+                    OR (
+                        @N__KOJ_UW_CHK = 1
+                        AND [KJU].[CODE] BETWEEN @C__KOJ_UW_FROM
+                            AND @C__KOJ_UW_TO
+                        )
+                    )
+                AND (
+                    @N__Eigyo_Tant_CHK = 0
+                    OR (
+                        @N__Eigyo_Tant_CHK = 1
+                        AND [KJU].[EIGYO_TANT] BETWEEN @C__Eigyo_Tant_FROM
+                            AND @C__Eigyo_Tant_TO
+                        )
+                    )
+            ) AS [KOJ] ON [KEI].[KAIS] = [KOJ].[KAIS]
+            AND [KEI].[BMN_UW] = [KOJ].[KOJ]
+        WHERE (
+                @N__TOR_CHK = 0
+                OR (
+                    @N__TOR_CHK = 1
+                    AND [KEI].[KEIY] BETWEEN @C__TOR_FROM
+                        AND @C__TOR_TO
+                    )
+                )
+        ) AS [KOJ]
+    LEFT JOIN (
+        SELECT [SEK].[KAIS]
+            ,[SEK].[KOJ]
+            ,[SEK].[KOJ_UW]
+            ,[SEK].[SEIK]
+            ,SUM(ISNULL([KIN], 0)) AS [SEIK_KIN]
+            ,SUM(ISNULL([U_ZEI], 0)) AS [SEIK_ZEI]
+            ,SUM([dbo].[Fun_IIfDate]([SEIK_DATE], '>=', @D__START_DDATE_FROM_SIME, [dbo].[Fun_IIfDate]([SEIK_DATE], '<=', @D__END_DDATE_TO_SIME, ISNULL([KIN], 0), 0), 0)) AS [T_SEI_KIN]
+            ,SUM(IIF([SEIK_DATE] IS NULL, 0, [dbo].[Fun_IIfDate]([dbo].[Fun_Sime]([SEIK_DATE], @D__SIME_DATE), '<=', DATEADD(month, - 1, @D__START_DDATE_FROM_1), ISNULL([KIN], 0), 0))) AS [N1MSEIK_KIN]
+            ,SUM(IIF([SEIK_DATE] IS NULL, 0, [dbo].[Fun_IIfDate]([dbo].[Fun_Sime]([SEIK_DATE], @D__SIME_DATE), '<=', DATEADD(month, - 1, @D__START_DDATE_FROM_1), ISNULL([U_ZEI], 0), 0))) AS [N1MSEIK_ZEI]
+            ,SUM(IIF([SEIK_DATE] IS NULL, 0, [dbo].[Fun_IIfDate]([dbo].[Fun_Sime]([SEIK_DATE], @D__SIME_DATE), '<=', @D__START_DDATE_FROM_1, ISNULL([KIN], 0), 0))) AS [NRSEIK_KIN]
+            ,SUM(IIF([SEIK_DATE] IS NULL, 0, [dbo].[Fun_IIfDate]([dbo].[Fun_Sime]([SEIK_DATE], @D__SIME_DATE), '<=', DATEADD(month, 1, @D__START_DDATE_FROM_1), ISNULL([KIN], 0), 0))) AS [NR1SEIK_KIN]
+            ,SUM(IIF([SEIK_DATE] IS NULL, 0, [dbo].[Fun_IIfDate]([dbo].[Fun_Sime]([SEIK_DATE], @D__SIME_DATE), '<=', DATEADD(month, 2, @D__START_DDATE_FROM_1), ISNULL([KIN], 0), 0))) AS [NR2SEIK_KIN]
+            ,SUM(IIF([SEIK_DATE] IS NULL, 0, [dbo].[Fun_IIfDate]([dbo].[Fun_Sime]([SEIK_DATE], @D__SIME_DATE), '<=', DATEADD(month, 3, @D__START_DDATE_FROM_1), ISNULL([KIN], 0), 0))) AS [NR3SEIK_KIN]
+            ,SUM(IIF([SEIK_DATE] IS NULL, 0, [dbo].[Fun_IIfDate]([dbo].[Fun_Sime]([SEIK_DATE], @D__SIME_DATE), '<=', DATEADD(month, 4, @D__START_DDATE_FROM_1), ISNULL([KIN], 0), 0))) AS [NR4SEIK_KIN]
+            ,SUM(IIF([SEIK_DATE] IS NULL, 0, [dbo].[Fun_IIfDate]([dbo].[Fun_Sime]([SEIK_DATE], @D__SIME_DATE), '<=', DATEADD(month, 5, @D__START_DDATE_FROM_1), ISNULL([KIN], 0), 0))) AS [NR5SEIK_KIN]
+            ,SUM(IIF([SEIK_DATE] IS NULL, 0, [dbo].[Fun_IIfDate]([dbo].[Fun_Sime]([SEIK_DATE], @D__SIME_DATE), '=', @D__START_DDATE_FROM_1, ISNULL([KIN], 0), 0))) AS [NSEIK_KIN]
+            ,SUM(IIF([SEIK_DATE] IS NULL, 0, [dbo].[Fun_IIfDate]([dbo].[Fun_Sime]([SEIK_DATE], @D__SIME_DATE), '=', DATEADD(month, 1, @D__START_DDATE_FROM_1), ISNULL([KIN], 0), 0))) AS [N1SEIK_KIN]
+            ,SUM(IIF([SEIK_DATE] IS NULL, 0, [dbo].[Fun_IIfDate]([dbo].[Fun_Sime]([SEIK_DATE], @D__SIME_DATE), '=', DATEADD(month, 2, @D__START_DDATE_FROM_1), ISNULL([KIN], 0), 0))) AS [N2SEIK_KIN]
+            ,SUM(IIF([SEIK_DATE] IS NULL, 0, [dbo].[Fun_IIfDate]([dbo].[Fun_Sime]([SEIK_DATE], @D__SIME_DATE), '=', DATEADD(month, 3, @D__START_DDATE_FROM_1), ISNULL([KIN], 0), 0))) AS [N3SEIK_KIN]
+            ,SUM(IIF([SEIK_DATE] IS NULL, 0, [dbo].[Fun_IIfDate]([dbo].[Fun_Sime]([SEIK_DATE], @D__SIME_DATE), '=', DATEADD(month, 4, @D__START_DDATE_FROM_1), ISNULL([KIN], 0), 0))) AS [N4SEIK_KIN]
+            ,SUM(IIF([SEIK_DATE] IS NULL, 0, [dbo].[Fun_IIfDate]([dbo].[Fun_Sime]([SEIK_DATE], @D__SIME_DATE), '=', DATEADD(month, 5, @D__START_DDATE_FROM_1), ISNULL([KIN], 0), 0))) AS [N5SEIK_KIN]
+            ,SUM(IIF([SEIK_DATE] IS NULL, 0, [dbo].[Fun_IIfDate]([dbo].[Fun_Sime]([SEIK_DATE], @D__SIME_DATE), '=', @D__START_DDATE_FROM_1, ISNULL([U_ZEI], 0), 0))) AS [NSEIK_ZEI]
+            ,SUM(IIF([SEIK_DATE] IS NULL, 0, [dbo].[Fun_IIfDate]([dbo].[Fun_Sime]([SEIK_DATE], @D__SIME_DATE), '=', DATEADD(month, 1, @D__START_DDATE_FROM_1), ISNULL([U_ZEI], 0), 0))) AS [N1SEIK_ZEI]
+            ,SUM(IIF([SEIK_DATE] IS NULL, 0, [dbo].[Fun_IIfDate]([dbo].[Fun_Sime]([SEIK_DATE], @D__SIME_DATE), '=', DATEADD(month, 2, @D__START_DDATE_FROM_1), ISNULL([U_ZEI], 0), 0))) AS [N2SEIK_ZEI]
+            ,SUM(IIF([SEIK_DATE] IS NULL, 0, [dbo].[Fun_IIfDate]([dbo].[Fun_Sime]([SEIK_DATE], @D__SIME_DATE), '=', DATEADD(month, 3, @D__START_DDATE_FROM_1), ISNULL([U_ZEI], 0), 0))) AS [N3SEIK_ZEI]
+            ,SUM(IIF([SEIK_DATE] IS NULL, 0, [dbo].[Fun_IIfDate]([dbo].[Fun_Sime]([SEIK_DATE], @D__SIME_DATE), '=', DATEADD(month, 4, @D__START_DDATE_FROM_1), ISNULL([U_ZEI], 0), 0))) AS [N4SEIK_ZEI]
+            ,SUM(IIF([SEIK_DATE] IS NULL, 0, [dbo].[Fun_IIfDate]([dbo].[Fun_Sime]([SEIK_DATE], @D__SIME_DATE), '=', DATEADD(month, 5, @D__START_DDATE_FROM_1), ISNULL([U_ZEI], 0), 0))) AS [N5SEIK_ZEI]
+        FROM [D_SEIK] AS [SEK]
+        GROUP BY [SEK].[KAIS]
+            ,[SEK].[KOJ]
+            ,[SEK].[KOJ_UW]
+            ,[SEK].[SEIK]
+        ) AS [SUB] ON [KOJ].[KAIS] = [SUB].[KAIS]
+        AND [KOJ].[KOJ] = [SUB].[KOJ]
+        AND [KOJ].[KOJ_UW] = [SUB].[KOJ_UW]
+        AND [KOJ].[SEIK] = [SUB].[SEIK];
+END;
